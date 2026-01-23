@@ -1,0 +1,14 @@
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\bin\Debug\net10.0\NetBank.exe
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\bin\Debug\net10.0\NetBank.deps.json
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\bin\Debug\net10.0\NetBank.runtimeconfig.json
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\bin\Debug\net10.0\NetBank.dll
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\bin\Debug\net10.0\NetBank.pdb
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\obj\Debug\net10.0\NetBank.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\obj\Debug\net10.0\NetBank.AssemblyInfoInputs.cache
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\obj\Debug\net10.0\NetBank.AssemblyInfo.cs
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\obj\Debug\net10.0\NetBank.csproj.CoreCompileInputs.cache
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\obj\Debug\net10.0\NetBank.dll
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\obj\Debug\net10.0\refint\NetBank.dll
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\obj\Debug\net10.0\NetBank.pdb
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\obj\Debug\net10.0\NetBank.genruntimeconfig.cache
+C:\Users\filah\Documents\projects\csharp\NetBankCollab\src\NetBank\obj\Debug\net10.0\ref\NetBank.dll

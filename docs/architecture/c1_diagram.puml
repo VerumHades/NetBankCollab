@@ -1,0 +1,12 @@
+﻿@startuml
+title NetBank System Context (C1)
+
+actor Customer
+actor Maintainer
+
+rectangle "NetBank System" {
+    Customer --> "TCP API"
+    Maintainer --> "HTTP API"
+}
+
+@enduml

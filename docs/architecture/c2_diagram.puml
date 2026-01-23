@@ -1,0 +1,14 @@
+﻿@startuml
+title NetBank Container Diagram (C2)
+
+package "NetBank System" {
+    rectangle "TCP / HTTP Controllers" as Controllers
+    rectangle "Application Layer (Services)" as AppLayer
+    rectangle "Persistence / Storage" as Storage
+}
+
+' Dependencies
+Controllers --> AppLayer
+AppLayer --> Storage
+
+@enduml

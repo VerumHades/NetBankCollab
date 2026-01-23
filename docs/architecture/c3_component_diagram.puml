@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+' ======== Packages / Layers ========
+package "Inbound Adapters (Controllers)" {
+    component TcpAccountController
+    component HttpAccountController
+    component MaintenanceController
+}
+
+package "Application Layer (Ports / Interfaces)" {
+    interface IAccountService
+    interface IStorageStrategy
+    interface IMaintenanceService
+}
+
+package "Infrastructure / Persistence" {
+    component SqlLiteStorage
+    component SqlServerStorage
+    component InMemoryStorage
+    component LogStorage
+}
+
+' ======== Dependencies ========
+TcpAccountController --> IAccountService
+HttpAccountController --> IAccountService
+MaintenanceController --> IMaintenanceService
+
+IAccountService --> IStorageStrategy
+IMaintenanceService --> LogStorage
+
+' ======== Implements ========
+SqlLiteStorage ..|> IStorageStrategy
+SqlServerStorage ..|> IStorageStrategy
+InMemoryStorage ..|> IStorageStrategy
+
+@enduml
