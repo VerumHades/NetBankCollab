@@ -9,7 +9,17 @@ public class CommandExecutor(IProvider<IAccountService> serviceProvider, IComman
     public async Task<string> ExecuteTextCommand(string commandString)
     {
         var service = serviceProvider.Get();
-        var dto = parser.ParseCommandToDTO(commandString);
+
+        object? dto = null;
+        try
+        {
+            dto = parser.ParseCommandToDTO(commandString);
+        }
+        catch (Exception ex)
+        {
+            return $"ER {ex}";
+        }
+        
 
         return dto switch
         {

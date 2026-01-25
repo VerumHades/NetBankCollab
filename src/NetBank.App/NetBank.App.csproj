@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>Library</OutputType>
+        <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -9,8 +9,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\NetBank.Application\NetBank.Application.csproj" />
-      <ProjectReference Include="..\NetBank.Domain\NetBank.Domain.csproj" />
+      <ProjectReference Include="..\NetBank.Controllers\NetBank.Controllers.csproj" />
+      <ProjectReference Include="..\NetBank.Infrastructure\NetBank.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
-

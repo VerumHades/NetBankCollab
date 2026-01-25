@@ -8,7 +8,7 @@ using NetBank.Infrastructure;
 using NetBank.Services;
 using NetBank.Services.Implementations.DoubleBufferedAccountService;
 
-namespace NetBank;
+namespace NetBank.App;
 
 class Program
 {
