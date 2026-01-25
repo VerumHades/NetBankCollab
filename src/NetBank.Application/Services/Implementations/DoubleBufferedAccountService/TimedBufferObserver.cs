@@ -74,13 +74,10 @@ public class TimedBufferObserver<T> : IDisposable where T: class, ICaptureBuffer
     {
         try
         {
-            // Change your TrySwap signature to return Task<bool>
             return await _onShouldSwap(); 
         }
         catch
         {
-            // If Flush fails, we return false so the timer retries 
-            // after another _swapTimeout.
             return false;
         }
     }

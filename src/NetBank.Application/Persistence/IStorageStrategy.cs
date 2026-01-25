@@ -25,14 +25,7 @@ public interface IStorageStrategy
     /// </summary>
     /// <param name="amounts">The accounts and amounts to deposit.</param>
     /// <returns>A collection of identifiers of accounts that were updated.</returns>
-    Task<IReadOnlyList<AccountIdentifier>> DepositAll(IEnumerable<AccountAndAmount> amounts);
-
-    /// <summary>
-    /// Withdraws amounts from the specified accounts. Correctness is not guaranteed.
-    /// </summary>
-    /// <param name="amounts">The accounts and amounts to withdraw.</param>
-    /// <returns>A collection of identifiers of accounts that were updated.</returns>
-    Task<IReadOnlyList<AccountIdentifier>> WithdrawAll(IEnumerable<AccountAndAmount> amounts);
+    Task<IReadOnlyList<AccountIdentifier>> UpdateAll(IEnumerable<Account> amounts);
 
     /// <summary>
     /// Retrieves balances for the specified accounts.
@@ -40,7 +33,7 @@ public interface IStorageStrategy
     /// </summary>
     /// <param name="accounts">The accounts to query.</param>
     /// <returns>A collection of accounts with their balances.</returns>
-    Task<IReadOnlyList<AccountAndAmount>> BalanceAll(IEnumerable<AccountIdentifier> accounts);
+    Task<IReadOnlyList<Account>> GetAll(IEnumerable<AccountIdentifier> accounts);
 
     /// <summary>
     /// Returns the total sum of all amounts across all accounts.

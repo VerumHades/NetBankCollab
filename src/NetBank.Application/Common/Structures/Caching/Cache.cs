@@ -24,6 +24,8 @@ public sealed class Cache<TKey, TValue>
         storage = new Dictionary<TKey, TValue>(initialMaximumCapacity);
     }
 
+    public Dictionary<TKey, TValue>.KeyCollection Keys => storage.Keys;
+
     public int MaximumCapacity
     {
         get => maximumCapacity;
@@ -50,6 +52,11 @@ public sealed class Cache<TKey, TValue>
         }
 
         return false;
+    }
+
+    public bool Contains(TKey key)
+    {
+        return TryGet(key, out _);
     }
 
     public void Set(TKey key, TValue value)
@@ -101,5 +108,10 @@ public sealed class Cache<TKey, TValue>
 
             Remove(keyToEvict);
         }
+    }
+
+    public void Clear()
+    {
+        storage.Clear();
     }
 }

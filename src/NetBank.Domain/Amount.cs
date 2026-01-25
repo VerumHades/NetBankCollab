@@ -10,6 +10,7 @@ public readonly struct Amount : IEquatable<Amount>, IComparable<Amount>
 
     public Amount(long value)
     {
+        
         Value = value;
     }
     

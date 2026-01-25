@@ -49,4 +49,10 @@ public sealed class LruEvictionPolicy<TKey> : ICacheEvictionPolicy<TKey>
         key = usageOrder.First.Value;
         return true;
     }
+
+    public void Clear()
+    {
+        usageOrder.Clear();
+        nodeIndex.Clear();
+    }
 }

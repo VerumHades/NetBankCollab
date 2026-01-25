@@ -39,7 +39,7 @@ public class InMemoryStorageStrategy : IStorageStrategy
                 }
                 else
                 {
-                    break;
+                    break; // ID space exhausted
                 }
             }
         }
@@ -55,58 +55,42 @@ public class InMemoryStorageStrategy : IStorageStrategy
             if (_balances.TryRemove(id, out _))
             {
                 removed.Add(id);
-                // Return the ID to the pool for future use
                 _recycledIds.Enqueue(id);
             }
         }
         return Task.FromResult<IReadOnlyList<AccountIdentifier>>(removed);
     }
 
-    public Task<IReadOnlyList<AccountIdentifier>> DepositAll(IEnumerable<AccountAndAmount> amounts)
+    /// <summary>
+    /// Synchronizes the persistent state with the entity state provided.
+    /// </summary>
+    public Task<IReadOnlyList<AccountIdentifier>> UpdateAll(IEnumerable<Account> accounts)
     {
         var updated = new List<AccountIdentifier>();
-        foreach (var item in amounts)
+        foreach (var account in accounts)
         {
-            // AddOrUpdate ensures thread-safety for the balance arithmetic
-            _balances.AddOrUpdate(
-                item.Account,
-                _ => item.Amount, 
-                (_, current) => current + item.Amount);
-            
-            updated.Add(item.Account);
+            // The logic has already happened in the entity; 
+            // we just overwrite the persistent balance with the new total.
+            _balances[account.Identifier] = account.Amount;
+            updated.Add(account.Identifier);
         }
         return Task.FromResult<IReadOnlyList<AccountIdentifier>>(updated);
     }
 
-    public Task<IReadOnlyList<AccountIdentifier>> WithdrawAll(IEnumerable<AccountAndAmount> amounts)
+    /// <summary>
+    /// Maps the internal primitive balances back into Account entities.
+    /// </summary>
+    public Task<IReadOnlyList<Account>> GetAll(IEnumerable<AccountIdentifier> accounts)
     {
-        var updated = new List<AccountIdentifier>();
-        foreach (var item in amounts)
-        {
-            if (_balances.ContainsKey(item.Account))
-            {
-                _balances.AddOrUpdate(
-                    item.Account,
-                    _ => new Amount(0),
-                    (_, current) => current - item.Amount);
-                
-                updated.Add(item.Account);
-            }
-        }
-        return Task.FromResult<IReadOnlyList<AccountIdentifier>>(updated);
-    }
-
-    public Task<IReadOnlyList<AccountAndAmount>> BalanceAll(IEnumerable<AccountIdentifier> accounts)
-    {
-        var results = new List<AccountAndAmount>();
+        var results = new List<Account>();
         foreach (var id in accounts)
         {
             if (_balances.TryGetValue(id, out var balance))
             {
-                results.Add(new AccountAndAmount(id, balance));
+                results.Add(new Account(id, balance));
             }
         }
-        return Task.FromResult<IReadOnlyList<AccountAndAmount>>(results);
+        return Task.FromResult<IReadOnlyList<Account>>(results);
     }
 
     public Task<Amount> BankTotal()

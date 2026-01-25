@@ -12,7 +12,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetBank.Infrastructure", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetBank.Controllers", "src\NetBank.Controllers\NetBank.Controllers.csproj", "{3066FA7F-7627-43C6-8778-FB8EF92BA15A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetBank", "src\NetBank\NetBank.csproj", "{F039B80F-E1DB-483C-872C-5622FBEE3DD8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetBank.Domain", "src\NetBank.Domain\NetBank.Domain.csproj", "{F039B80F-E1DB-483C-872C-5622FBEE3DD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetBank.App", "src\NetBank.App\NetBank.App.csproj", "{AF6E3016-29F8-41A5-A484-0C738925F122}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,5 +49,9 @@ Global
 		{F039B80F-E1DB-483C-872C-5622FBEE3DD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F039B80F-E1DB-483C-872C-5622FBEE3DD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F039B80F-E1DB-483C-872C-5622FBEE3DD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF6E3016-29F8-41A5-A484-0C738925F122}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF6E3016-29F8-41A5-A484-0C738925F122}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF6E3016-29F8-41A5-A484-0C738925F122}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF6E3016-29F8-41A5-A484-0C738925F122}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

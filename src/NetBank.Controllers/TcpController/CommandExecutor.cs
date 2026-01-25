@@ -1,29 +1,63 @@
-﻿using NetBank.Controllers.TcpController.Commands;
+﻿using NetBank.Common;
+using NetBank.Controllers.TcpController.Parsing;
+using NetBank.Services;
 
 namespace NetBank.Controllers.TcpController;
 
-public class CommandExecutor: ICommandInterpreter
+public class CommandExecutor(IProvider<IAccountService> serviceProvider, ICommandParser parser, Configuration.Configuration config): ICommandInterpreter
 {
-    private readonly ICommandParser _commandParser;
-    private readonly ICommandFactory _commandFactory;
-
-    public CommandExecutor(ICommandParser commandParser, ICommandFactory commandFactory)
-    {
-        _commandParser = commandParser;
-        _commandFactory = commandFactory;
-    }
-
     public async Task<string> ExecuteTextCommand(string commandString)
     {
-        try
+        var service = serviceProvider.Get();
+        var dto = parser.ParseCommandToDTO(commandString);
+
+        return dto switch
         {
-            var dto = _commandParser.ParseCommandToDTO(commandString);
-            var command = _commandFactory.Create(dto);
-            return await command.ExecuteAsync();
-        }
-        catch (Exception ex)
-        {
-            return  $"ER {ex.Message}";
-        }
+            // Identity & Config
+            BankCodeDto => 
+                $"BC {config.ServerIp}",
+
+            // Account Lifecycle
+            CreateAccountDto => 
+                $"AC {await service.CreateAccount()}/{config.ServerIp}",
+
+            RemoveAccountDto r => 
+                await ExecuteRemove(service, new AccountIdentifier(r.Account)),
+
+            DepositDto r => 
+                await ExecuteDeposit(service, new AccountIdentifier(r.Account), new Amount(r.Amount)),
+
+            WithdrawDto r => 
+                await ExecuteWithdraw(service, new AccountIdentifier(r.Account), new Amount(r.Amount)),
+            
+            BalanceDto r => 
+                $"AB {await service.Balance(new AccountIdentifier(r.Account))}",
+
+            BankTotalDto => 
+                $"BA {await service.BankTotal()}",
+
+            BankClientsDto => 
+                $"BN {await service.BankNumberOfClients()}",
+
+            _ => throw new ArgumentException($"Unsupported DTO type: {dto.GetType().Name}")
+        };
+    }
+
+    private static async Task<string> ExecuteRemove(IAccountService service, AccountIdentifier id)
+    {
+        await service.RemoveAccount(id);
+        return "AR";
+    }
+
+    private static async Task<string> ExecuteDeposit(IAccountService service, AccountIdentifier id, Amount amount)
+    {
+        await service.Deposit(id, amount);
+        return "AD";
+    }
+
+    private static async Task<string> ExecuteWithdraw(IAccountService service, AccountIdentifier id, Amount amount)
+    {
+        await service.Withdraw(id, amount);
+        return "AW";
     }
 }

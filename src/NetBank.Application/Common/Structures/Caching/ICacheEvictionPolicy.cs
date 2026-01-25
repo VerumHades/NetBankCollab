@@ -13,4 +13,6 @@ public interface ICacheEvictionPolicy<TKey>
     void RecordRemoval(TKey key);
 
     bool TrySelectEvictionCandidate(out TKey key);
+
+    void Clear();
 }

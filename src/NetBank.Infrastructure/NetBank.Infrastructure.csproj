@@ -9,7 +9,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\NetBank.Application\NetBank.Application.csproj" />
-      <ProjectReference Include="..\NetBank\NetBank.csproj" />
+      <ProjectReference Include="..\NetBank.Domain\NetBank.Domain.csproj" />
     </ItemGroup>
 
 </Project>

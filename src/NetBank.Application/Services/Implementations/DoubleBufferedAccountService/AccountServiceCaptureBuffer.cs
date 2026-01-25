@@ -3,9 +3,9 @@ using NetBank.Errors;
 
 namespace NetBank.Services.Implementations.DoubleBufferedAccountService;
 
-public class AccountServiceCaptureBuffer : IAccountService, ICaptureBuffer, IReadOnlyStorageCapture
+public class AccountServiceCaptureBuffer : IAccountService, ICaptureBuffer
 {
-    private readonly SequenceReadSet<AccountIdentifier> _touchedAccounts = [];
+    private readonly HashSet<AccountIdentifier> _touchedAccounts = [];
     private readonly List<TaskCompletionSource<AccountIdentifier>> _creationOperations = [];
     private readonly List<(TaskCompletionSource, AccountIdentifier, Amount)> _depositOperations = [];
     private readonly List<(TaskCompletionSource, AccountIdentifier, Amount)> _withdrawOperations = [];
@@ -14,7 +14,7 @@ public class AccountServiceCaptureBuffer : IAccountService, ICaptureBuffer, IRea
     private readonly List<TaskCompletionSource<Amount>> _bankTotalRequests = [];
     private readonly List<TaskCompletionSource<int>> _clientNumberRequests = [];
 
-    public SequenceReadSet<AccountIdentifier> TouchedAccounts => _touchedAccounts;
+    public HashSet<AccountIdentifier> TouchedAccounts => _touchedAccounts;
     public IReadOnlyList<TaskCompletionSource<AccountIdentifier>> CreationOperations => _creationOperations;
     public IReadOnlyList<(TaskCompletionSource, AccountIdentifier, Amount)> DepositOperations => _depositOperations;
     public IReadOnlyList<(TaskCompletionSource, AccountIdentifier, Amount)> WithdrawOperations => _withdrawOperations;
