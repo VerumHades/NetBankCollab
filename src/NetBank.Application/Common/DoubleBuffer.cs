@@ -1,4 +1,4 @@
-﻿namespace NetBank.Common.Structures.Buffering;
+﻿namespace NetBank.Common;
 
 public class DoubleBuffer<T> where T: new()
 {

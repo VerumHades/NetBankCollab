@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using Microsoft.Extensions.Logging;
 using NetBank.Common;
-using NetBank.Common.Structures.Buffering;
 using NetBank.Controllers.TcpController;
 using NetBank.Controllers.TcpController.Parsing;
 using NetBank.Infrastructure;
@@ -10,9 +9,14 @@ using NetBank.Services.Implementations.DoubleBufferedAccountService;
 
 namespace NetBank.App;
 
-class Program
+public class Program
 {
     static async Task Main(string[] args)
+    {
+        await RunServerAsync(args);
+    }
+
+    public static async Task RunServerAsync(string[] args, CancellationToken cancellationToken = default)
     {
         using var loggerFactory = LoggerFactory.Create(builder => {
             builder.AddConsole().SetMinimumLevel(LogLevel.Debug);
@@ -67,6 +71,6 @@ class Program
             loggerFactory.CreateLogger<TcpCommandServer>()
         );
 
-        await server.StartAsync(CancellationToken.None);
+        await server.StartAsync(cancellationToken);
     }
 }

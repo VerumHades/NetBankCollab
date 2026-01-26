@@ -1,4 +1,6 @@
-﻿namespace NetBank;
+﻿using NetBank.Errors;
+
+namespace NetBank;
 
 public class Account
 {
@@ -20,7 +22,7 @@ public class Account
     {
         if (amount > Amount)
         {
-            throw new ArgumentException($"Cannot withdraw {amount} from {Identifier}");
+            throw new ModuleException(new InsufficientFundsError(Identifier, amount, Amount), ErrorOrigin.Client, $"Cannot withdraw {amount} from {Identifier}");
         }
 
         Amount -= amount;

@@ -1,4 +1,4 @@
-﻿namespace NetBank.Common.Structures.Caching;
+﻿namespace NetBank.Common.Caching;
 
 /// <summary>
 /// Defines an eviction policy for a cache.

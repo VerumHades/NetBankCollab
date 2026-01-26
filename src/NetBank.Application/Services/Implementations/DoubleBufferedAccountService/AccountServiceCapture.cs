@@ -26,11 +26,8 @@ public class AccountServiceCapture : IDisposable
     /// </summary>
     public void Clear()
     {
-        // Define the exception once to be reused for all pending tasks
         var ex = new ModuleException(
-            new ModuleErrorIdentifier(Module.StorageProcessor), 
-            ErrorOrigin.System, 
-            _disposed ? "Buffer has been disposed." : "Buffer cleared before operations were resolved.");
+            new BufferFlushClearedUnfinishedError(), ErrorOrigin.System, _disposed ? "Buffer has been disposed." : "Buffer cleared before operations were resolved.");
         
         foreach (var tcs in CreationOperations) tcs.TrySetException(ex);
         foreach (var op in DepositOperations) op.tcs.TrySetException(ex);

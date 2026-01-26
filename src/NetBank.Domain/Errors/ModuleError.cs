@@ -5,32 +5,13 @@
 /// </summary>
 public sealed class ModuleException : Exception
 {
-    public ModuleErrorIdentifier ErrorIdentifier { get; }
+    public object ErrorPayload { get; }
     public ErrorOrigin Origin { get; }
 
-    public ModuleException(
-        ModuleErrorIdentifier errorIdentifier,
-        ErrorOrigin origin,
-        string message)
-        : base(message)
+    public ModuleException(object errorPayload, ErrorOrigin origin, string internalLogMessage)
+        : base(internalLogMessage)
     {
-        ErrorIdentifier = errorIdentifier;
+        ErrorPayload = errorPayload;
         Origin = origin;
-    }
-
-    public ModuleException(
-        ModuleErrorIdentifier errorIdentifier,
-        ErrorOrigin origin,
-        string message,
-        Exception innerException)
-        : base(message, innerException)
-    {
-        ErrorIdentifier = errorIdentifier;
-        Origin = origin;
-    }
-
-    public override string ToString()
-    {
-        return $"[{ErrorIdentifier}] [{Origin}] {Message}{Environment.NewLine}{StackTrace}";
     }
 }

@@ -1,8 +1,6 @@
 ﻿using NetBank.Common;
-using NetBank.Common.Structures;
-using NetBank.Common.Structures.Caching;
+using NetBank.Common.Caching;
 using NetBank.Errors;
-using NetBank.Persistence;
 
 namespace NetBank.Services.Implementations.DoubleBufferedAccountService;
 
@@ -14,23 +12,23 @@ public class CapturedAccountActionsProcessor(IStorageStrategy storageStrategy) :
     public async Task Flush(AccountServiceCapture capture, CancellationToken cancellationToken)
     {
         await _flushLock.WaitAsync(cancellationToken);
-    
+
         try
         {
             await PrefetchMissingAccountsIntoCache(capture.TouchedAccounts);
             if (cancellationToken.IsCancellationRequested) return;
-            
+
             await ProcessCreations(capture.CreationOperations);
             if (cancellationToken.IsCancellationRequested) return;
-            
+
             await ProcessRemovals(capture.RemoveOperations);
             if (cancellationToken.IsCancellationRequested) return;
-            
+
             await ProcessFinancialOperations(capture.DepositOperations, capture.WithdrawOperations);
-            
+
             if (!cancellationToken.IsCancellationRequested)
                 await ResolveBankTotalRequests(capture.BankTotalRequests);
-            
+
             if (!cancellationToken.IsCancellationRequested)
                 await ResolveBankClientCountRequests(capture.ClientNumberRequests);
 
@@ -85,7 +83,12 @@ public class CapturedAccountActionsProcessor(IStorageStrategy storageStrategy) :
             }
             else
             {
-                ops[i].TrySetException(CreateException(ErrorOrigin.System, "Capacity reached."));
+                ops[i].TrySetException(
+                    new ModuleException(
+                        new AccountMaxCapacityReachedError(), 
+                        ErrorOrigin.System, 
+                        "Capacity reached.")
+                    );
             }
         }
     }
@@ -110,12 +113,17 @@ public class CapturedAccountActionsProcessor(IStorageStrategy storageStrategy) :
                 }
                 else
                 {
-                    tcs.TrySetException(CreateException(ErrorOrigin.Client, "Cannot delete account with remaining balance."));
+                    tcs.TrySetException(
+                        new ModuleException(
+                            new CannotRemoveAccountWithRemainingBalanceError(account.Amount),
+                            ErrorOrigin.Client,
+                            "Cannot delete account with remaining balance."
+                            ));
                 }
             }
             else
             {
-                tcs.TrySetException(CreateException(ErrorOrigin.Client, "Account not found."));
+                tcs.TrySetException(CreateAccountNotFound(id));
             }
         }
 
@@ -146,7 +154,7 @@ public class CapturedAccountActionsProcessor(IStorageStrategy storageStrategy) :
             }
             else
             {
-                tcs.TrySetException(CreateException(ErrorOrigin.Client, "Account not found."));
+                tcs.TrySetException(CreateAccountNotFound(id));
             }
         }
         
@@ -162,12 +170,12 @@ public class CapturedAccountActionsProcessor(IStorageStrategy storageStrategy) :
                 }
                 catch (ArgumentException ex)
                 {
-                    tcs.TrySetException(CreateException(ErrorOrigin.Client, ex.Message));
+                    tcs.TrySetException(ex);
                 }
             }
             else
             {
-                tcs.TrySetException(CreateException(ErrorOrigin.Client, "Account not found."));
+                tcs.TrySetException(CreateAccountNotFound(id));
             }
         }
 
@@ -185,7 +193,7 @@ public class CapturedAccountActionsProcessor(IStorageStrategy storageStrategy) :
             if (_cache.TryGet(id, out var account))
                 tcs.TrySetResult(account.Amount);
             else
-                tcs.TrySetException(CreateException(ErrorOrigin.Client, "Account not found."));
+                tcs.TrySetException(CreateAccountNotFound(id));
         }
     }
     
@@ -211,6 +219,10 @@ public class CapturedAccountActionsProcessor(IStorageStrategy storageStrategy) :
     }
 
     private const int MinimumCacheSize = 100;
-    private static ModuleException CreateException(ErrorOrigin origin, string message) =>
-        new(new ModuleErrorIdentifier(Module.StorageProcessor), origin, message);
+
+    private static ModuleException CreateAccountNotFound(AccountIdentifier id) => new ModuleException(
+        new AccountNotFoundError(id),
+        ErrorOrigin.Client,
+        "Account not found."
+    );
 }

@@ -90,7 +90,7 @@ public class TcpCommandServer
             catch (ModuleException modEx)
             {
                 _logger.LogError(modEx, "Module error processing command for {RemoteEndPoint}. ID: {ErrorId}", 
-                    remoteEndPoint, modEx.ErrorIdentifier);
+                    remoteEndPoint, modEx);
             }
             catch (Exception ex)
             {
