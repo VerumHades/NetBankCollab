@@ -16,6 +16,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetBank.Domain", "src\NetBa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetBank.App", "src\NetBank.App\NetBank.App.csproj", "{AF6E3016-29F8-41A5-A484-0C738925F122}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "tests\IntegrationTests\IntegrationTests.csproj", "{4FDD7087-2319-4672-9189-88EF2BC60A5E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndToEndTests", "tests\EndToEndTests\EndToEndTests.csproj", "{AE51166B-1F8F-46AE-8353-7B2EED1158DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,5 +57,13 @@ Global
 		{AF6E3016-29F8-41A5-A484-0C738925F122}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF6E3016-29F8-41A5-A484-0C738925F122}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF6E3016-29F8-41A5-A484-0C738925F122}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FDD7087-2319-4672-9189-88EF2BC60A5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FDD7087-2319-4672-9189-88EF2BC60A5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FDD7087-2319-4672-9189-88EF2BC60A5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FDD7087-2319-4672-9189-88EF2BC60A5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE51166B-1F8F-46AE-8353-7B2EED1158DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE51166B-1F8F-46AE-8353-7B2EED1158DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE51166B-1F8F-46AE-8353-7B2EED1158DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE51166B-1F8F-46AE-8353-7B2EED1158DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

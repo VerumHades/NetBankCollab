@@ -1,4 +1,4 @@
-﻿namespace NetBank.Common.Structures.Caching;
+﻿namespace NetBank.Common.Caching;
 
 /// <summary>
 /// Generic cache with pluggable eviction policy and configurable capacity.

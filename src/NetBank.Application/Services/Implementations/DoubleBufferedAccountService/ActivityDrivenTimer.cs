@@ -1,4 +1,4 @@
-﻿namespace NetBank.Common.Structures.Buffering;
+﻿namespace NetBank.Services.Implementations.DoubleBufferedAccountService;
 
 public class ActivityDrivenTimer : IDisposable
 {

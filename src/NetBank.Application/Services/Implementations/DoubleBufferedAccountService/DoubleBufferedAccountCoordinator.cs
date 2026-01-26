@@ -1,5 +1,4 @@
 ﻿using NetBank.Common;
-using NetBank.Common.Structures.Buffering;
 using NetBank.Services.Implementations.DoubleBufferedAccountService;
 
 namespace NetBank.Services.Implementations.DoubleBufferedAccountService;

@@ -1,4 +1,4 @@
-﻿namespace NetBank.Persistence;
+﻿namespace NetBank;
 
 /// <summary>
 /// Defines the storage strategy for accounts and balances.
