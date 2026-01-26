@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using NetBank.Common;
 using NetBank.Common.Structures.Buffering;
+using NetBank.Controllers.HttpController;
 using NetBank.Controllers.TcpController;
 using NetBank.Controllers.TcpController.Parsing;
 using NetBank.Infrastructure;
@@ -56,6 +57,15 @@ class Program
             swapTimer.WakeUp();
         };
 
+        var httpServer = new HttpServerHost(
+            args,
+            service,
+            configuration,
+            loggerFactory
+        );
+
+        _ = httpServer.StartAsync();
+        
         var commandParser = new TemplateCommandParser();
         var commandExecutor = new CommandExecutor(service, commandParser, configuration);
 
