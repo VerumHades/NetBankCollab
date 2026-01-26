@@ -40,7 +40,7 @@ class Program
         var bufferFactory = new BufferFactory();
         var inmemStorage = new InMemoryStorageStrategy();
         var processor = new StorageBufferProcessor(inmemStorage);
-        var buffer = new CoordinatedDoubleBuffer<AccountServiceCaptureBuffer>(bufferFactory, processor);
+        var buffer = new FlushOnSwapDoubleBuffer<AccountServiceCaptureBuffer>(bufferFactory, processor);
         
         using var observer = new TimedBufferObserver<AccountServiceCaptureBuffer>(
             () => {

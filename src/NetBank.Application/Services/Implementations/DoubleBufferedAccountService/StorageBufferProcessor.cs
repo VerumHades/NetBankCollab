@@ -18,26 +18,29 @@ public class StorageBufferProcessor : IProcessor<AccountServiceCaptureBuffer>
         _cache = new Cache<AccountIdentifier, Account>(100, new LruEvictionPolicy<AccountIdentifier>());
     }
 
-    public async Task Flush(AccountServiceCaptureBuffer capture)
+    public async Task Flush(AccountServiceCaptureBuffer capture, CancellationToken cancellationToken)
     {
-        await _flushLock.WaitAsync();
+        await _flushLock.WaitAsync(cancellationToken);
+    
         try
         {
-            // 1. Sync cache with current persistent state
             await PrefetchMissingAccountsIntoCache(capture.TouchedAccounts);
+            if (cancellationToken.IsCancellationRequested) return;
             
-            // 2. Handle Creations
             await ProcessCreations(capture.CreationOperations);
+            if (cancellationToken.IsCancellationRequested) return;
             
-            // 3. Process Removals (Logic: Amount must be 0)
             await ProcessRemovals(capture.RemoveOperations);
-
-            // 4. Process Financial Updates (Deposits and Withdrawals)
+            if (cancellationToken.IsCancellationRequested) return;
+            
             await ProcessFinancialOperations(capture.DepositOperations, capture.WithdrawOperations);
+            
+            if (!cancellationToken.IsCancellationRequested)
+                await ResolveBankTotalRequests(capture.BankTotalRequests);
+            
+            if (!cancellationToken.IsCancellationRequested)
+                await ResolveBankClientCountRequests(capture.ClientNumberRequests);
 
-            // 5. Global Stats & Queries
-            await ResolveBankTotalRequests(capture.BankTotalRequests);
-            await ResolveBankClientCountRequests(capture.ClientNumberRequests);
             ResolveBalanceRequests(capture.BalanceRequests);
         }
         finally
@@ -192,8 +195,7 @@ public class StorageBufferProcessor : IProcessor<AccountServiceCaptureBuffer>
                 tcs.TrySetException(CreateException(ErrorOrigin.Client, "Account not found."));
         }
     }
-
-    // Helper logic for BankTotal and ClientCount remains similar as they query the Strategy directly
+    
     private async Task ResolveBankTotalRequests(IEnumerable<TaskCompletionSource<Amount>> requests)
     {
         var total = await _storageStrategy.BankTotal();
