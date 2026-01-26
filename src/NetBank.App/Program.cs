@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Microsoft.Extensions.Logging;
 using NetBank.Common;
-using NetBank.Common.Structures.Buffering;
+using NetBank.Controllers.HttpController;
 using NetBank.Controllers.TcpController;
 using NetBank.Controllers.TcpController.Parsing;
 using NetBank.Infrastructure;
@@ -29,7 +29,7 @@ class Program
             return;
         }
 
-        var storage = new SqliteStorageStrategy();
+        var storage = new InMemoryStorageStrategy();
         
         var processor = new CapturedAccountActionsProcessor(storage);
         var coordinator = new DoubleBufferedAccountCoordinator(processor);
@@ -56,6 +56,8 @@ class Program
             swapTimer.WakeUp();
         };
 
+        
+        // need to run dotnet dev-certs https --trust
         var httpServer = new HttpServerHost(
             args,
             service,

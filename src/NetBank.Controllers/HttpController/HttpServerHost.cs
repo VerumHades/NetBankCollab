@@ -5,7 +5,17 @@ using NetBank.Services.Implementations.DoubleBufferedAccountService;
 
 namespace NetBank.Controllers.HttpController;
 
-
+/// <summary>
+/// Hosts an HTTP server using ASP.NET Core, runs controllers derived from <see cref="HttpControllerBase"/>,
+/// and provides Swagger documentation at /swagger.
+/// <para>
+/// Note: For local development with HTTPS, ensure that the ASP.NET Core development certificate is trusted
+/// by running the following command once on your machine:
+/// <c>dotnet dev-certs https --trust</c>
+/// This will add the self-signed certificate to Windows trusted root store so clients like cURL or browsers
+/// will trust the local HTTPS server.
+/// </para>
+/// </summary>
 public class HttpServerHost
 {
     private readonly WebApplication _app;
