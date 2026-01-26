@@ -6,19 +6,12 @@ using NetBank.Persistence;
 
 namespace NetBank.Services.Implementations.DoubleBufferedAccountService;
 
-public class StorageBufferProcessor : IProcessor<AccountServiceCaptureBuffer>
+public class CapturedAccountActionsProcessor(IStorageStrategy storageStrategy) : IProcessor<AccountServiceCapture>
 {
-    private readonly IStorageStrategy _storageStrategy;
-    private readonly Cache<AccountIdentifier, Account> _cache; // Now caches the Account entity
+    private readonly Cache<AccountIdentifier, Account> _cache = new(100, new LruEvictionPolicy<AccountIdentifier>()); // Now caches the Account entity
     private readonly SemaphoreSlim _flushLock = new(1, 1);
-    
-    public StorageBufferProcessor(IStorageStrategy storageStrategy)
-    {
-        _storageStrategy = storageStrategy;
-        _cache = new Cache<AccountIdentifier, Account>(100, new LruEvictionPolicy<AccountIdentifier>());
-    }
 
-    public async Task Flush(AccountServiceCaptureBuffer capture, CancellationToken cancellationToken)
+    public async Task Flush(AccountServiceCapture capture, CancellationToken cancellationToken)
     {
         await _flushLock.WaitAsync(cancellationToken);
     
@@ -68,7 +61,7 @@ public class StorageBufferProcessor : IProcessor<AccountServiceCaptureBuffer>
         
         AdjustCacheSize(_cache.Count + missingIds.Count);
 
-        var fetchedAccounts = await _storageStrategy.GetAll(_prefetchList);
+        var fetchedAccounts = await storageStrategy.GetAll(_prefetchList);
     
         foreach (var account in fetchedAccounts)
         {
@@ -80,7 +73,7 @@ public class StorageBufferProcessor : IProcessor<AccountServiceCaptureBuffer>
     {
         if (ops.Count == 0) return;
 
-        var createdIds = await _storageStrategy.CreateAccounts(ops.Count);
+        var createdIds = await storageStrategy.CreateAccounts(ops.Count);
         for (int i = 0; i < ops.Count; i++)
         {
             if (i < createdIds.Count)
@@ -128,7 +121,7 @@ public class StorageBufferProcessor : IProcessor<AccountServiceCaptureBuffer>
 
         if (_toRemove.Count > 0)
         {
-            await _storageStrategy.RemoveAccounts(_toRemove);
+            await storageStrategy.RemoveAccounts(_toRemove);
             foreach (var tcs in _tcsList) tcs.TrySetResult();
         }
     }
@@ -180,7 +173,7 @@ public class StorageBufferProcessor : IProcessor<AccountServiceCaptureBuffer>
 
         if (_dirtyAccounts.Count > 0)
         {
-            await _storageStrategy.UpdateAll(_dirtyAccounts);
+            await storageStrategy.UpdateAll(_dirtyAccounts);
             foreach (var tcs in _successfulTcs) tcs.TrySetResult();
         }
     }
@@ -198,13 +191,13 @@ public class StorageBufferProcessor : IProcessor<AccountServiceCaptureBuffer>
     
     private async Task ResolveBankTotalRequests(IEnumerable<TaskCompletionSource<Amount>> requests)
     {
-        var total = await _storageStrategy.BankTotal();
+        var total = await storageStrategy.BankTotal();
         foreach (var tcs in requests) tcs.TrySetResult(total);
     }
 
     private async Task ResolveBankClientCountRequests(IEnumerable<TaskCompletionSource<int>> requests)
     {
-        var count = await _storageStrategy.BankNumberOfClients();
+        var count = await storageStrategy.BankNumberOfClients();
         foreach (var tcs in requests) tcs.TrySetResult(count);
     }
 

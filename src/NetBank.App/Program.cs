@@ -12,14 +12,6 @@ namespace NetBank.App;
 
 class Program
 {
-    private class BufferFactory: IFactory<AccountServiceCaptureBuffer>
-    {
-        public AccountServiceCaptureBuffer Create()
-        {
-            return new AccountServiceCaptureBuffer();
-        }
-    }
-    
     static async Task Main(string[] args)
     {
         using var loggerFactory = LoggerFactory.Create(builder => {
@@ -37,26 +29,35 @@ class Program
             return;
         }
 
-        var bufferFactory = new BufferFactory();
-        var inmemStorage = new InMemoryStorageStrategy();
-        var processor = new StorageBufferProcessor(inmemStorage);
-        var buffer = new FlushOnSwapDoubleBuffer<AccountServiceCaptureBuffer>(bufferFactory, processor);
+        var storage = new SqliteStorageStrategy();
         
-        using var observer = new TimedBufferObserver<AccountServiceCaptureBuffer>(
-            () => {
-                try { return buffer.TrySwap(); }
-                catch (Exception e) { 
+        var processor = new CapturedAccountActionsProcessor(storage);
+        var coordinator = new DoubleBufferedAccountCoordinator(processor);
+        
+        using var swapTimer = new ActivityDrivenTimer(
+            () =>
+            {
+                try
+                {
+                    return coordinator.TrySwap();
+                }
+                catch (Exception e)
+                {
                     loggerFactory.CreateLogger("BufferObserver").LogError(e, "Buffer swap failed.");
-                    return Task.FromResult(false); 
+                    return Task.FromResult(false);
                 }
             }, 
-            buffer, 
             configuration.BufferSwapDelay
         );
+        
+        var service = new AccountServiceBufferProxy(coordinator);
+        service.OnActivity = () =>
+        {
+            swapTimer.WakeUp();
+        };
 
-        var serviceProvider = new LambdaProvider<IAccountService>(() => buffer.Front);
         var commandParser = new TemplateCommandParser();
-        var commandExecutor = new CommandExecutor(serviceProvider, commandParser, configuration);
+        var commandExecutor = new CommandExecutor(service, commandParser, configuration);
 
         var server = new TcpCommandServer(
             commandExecutor, 

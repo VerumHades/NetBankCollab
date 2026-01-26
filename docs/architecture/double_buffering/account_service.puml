@@ -1,0 +1,66 @@
+﻿@startuml
+skinparam Style strictuml
+skinparam BackgroundColor white
+skinparam DefaultFontName Arial
+skinparam ParticipantPadding 20
+
+title NetBank Double Buffered Service Architecture
+
+' Interfaces
+interface IAccountService {
+    +CreateAccount(): Task<Id>
+    +Deposit(Id, Amount): Task
+    +Withdraw(Id, Amount): Task
+    +Balance(Id): Task<Amount>
+}
+
+interface IProcessor<T> {
+    +Flush(T, CancellationToken): Task
+}
+
+interface IStorageStrategy {
+    +GetAll(List<Id>): Task<List<Account>>
+    +UpdateAll(List<Account>): Task
+}
+
+' Classes
+class AccountServiceBufferProxy {
+    -coordinator: DoubleBufferedAccountCoordinator
+}
+
+class DoubleBufferedAccountCoordinator {
+    -buffers: DoubleBuffer<AccountServiceCapture>
+    -processor: IProcessor
+    +GetCurrentWriter(): IAccountService
+    +TrySwap(): Task<bool>
+}
+
+class AccountServiceCapture {
+    +TouchedAccounts: HashSet<Id>
+    +DepositOperations: List<Ops>
+    +Clear()
+    +Dispose()
+}
+
+class CapturedAccountActionsProcessor {
+    -storage: IStorageStrategy
+    -cache: Cache
+    +Flush(Capture, Token): Task
+}
+
+' Relationships
+IAccountService <|.. AccountServiceBufferProxy
+IProcessor <|.. CapturedAccountActionsProcessor
+
+AccountServiceBufferProxy --> DoubleBufferedAccountCoordinator : delegates to
+DoubleBufferedAccountCoordinator *-- AccountServiceCapture : manages Front/Back
+CapturedAccountActionsProcessor --> IStorageStrategy : writes to
+
+note bottom of DoubleBufferedAccountCoordinator
+  Atomic Swap:
+  1. Front becomes Back
+  2. Back is sent to Processor
+  3. New Front is cleared
+end note
+
+@enduml

@@ -4,12 +4,10 @@ using NetBank.Services;
 
 namespace NetBank.Controllers.TcpController;
 
-public class CommandExecutor(IProvider<IAccountService> serviceProvider, ICommandParser parser, Configuration.Configuration config): ICommandInterpreter
+public class CommandExecutor(IAccountService service, ICommandParser parser, Configuration.Configuration config): ICommandInterpreter
 {
     public async Task<string> ExecuteTextCommand(string commandString)
     {
-        var service = serviceProvider.Get();
-
         object? dto = null;
         try
         {
