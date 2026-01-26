@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Microsoft.Extensions.Logging;
 using NetBank.Common;
+using NetBank.Controllers.HttpController;
 using NetBank.Controllers.TcpController;
 using NetBank.Controllers.TcpController.Parsing;
 using NetBank.Infrastructure;
@@ -9,14 +10,9 @@ using NetBank.Services.Implementations.DoubleBufferedAccountService;
 
 namespace NetBank.App;
 
-public class Program
+class Program
 {
     static async Task Main(string[] args)
-    {
-        await RunServerAsync(args);
-    }
-
-    public static async Task RunServerAsync(string[] args, CancellationToken cancellationToken = default)
     {
         using var loggerFactory = LoggerFactory.Create(builder => {
             builder.AddConsole().SetMinimumLevel(LogLevel.Debug);
@@ -33,7 +29,7 @@ public class Program
             return;
         }
 
-        var storage = new SqliteStorageStrategy();
+        var storage = new InMemoryStorageStrategy();
         
         var processor = new CapturedAccountActionsProcessor(storage);
         var coordinator = new DoubleBufferedAccountCoordinator(processor);
@@ -61,6 +57,17 @@ public class Program
             swapTimer.WakeUp();
         };
 
+        
+        // need to run dotnet dev-certs https --trust
+        var httpServer = new HttpServerHost(
+            args,
+            service,
+            configuration,
+            loggerFactory
+        );
+
+        _ = httpServer.StartAsync();
+        
         var commandParser = new TemplateCommandParser();
         var commandExecutor = new CommandExecutor(service, commandParser, configuration);
 
@@ -72,6 +79,6 @@ public class Program
             loggerFactory.CreateLogger<TcpCommandServer>()
         );
 
-        await server.StartAsync(cancellationToken);
+        await server.StartAsync(CancellationToken.None);
     }
 }

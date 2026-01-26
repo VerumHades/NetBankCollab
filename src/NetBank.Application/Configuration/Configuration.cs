@@ -20,6 +20,9 @@ public class Configuration
     [CliOption("--swap-delay", "-d", "Delay before performing a buffer swap in milliseconds", ValidationType.MustBePositive)]
     public int BufferSwapDelayMs { get; set; } = 100;
     
+    [JsonPropertyName("frontEndURl")]
+    public string FrontEndURl { get; set; } = "https://localhost:8444";
+    
     [JsonIgnore]
     public TimeSpan InactivityTimeout => TimeSpan.FromMilliseconds(NetworkInactivityTimeoutMs);
 
