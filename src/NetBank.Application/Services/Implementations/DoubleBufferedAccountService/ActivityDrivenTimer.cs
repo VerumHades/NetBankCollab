@@ -1,20 +1,25 @@
-﻿namespace NetBank.Services.Implementations.DoubleBufferedAccountService;
+﻿using Microsoft.Extensions.Logging;
+
+namespace NetBank.Services.Implementations.DoubleBufferedAccountService;
 
 public class ActivityDrivenTimer : IDisposable
 {
     private readonly Func<Task<bool>> _swapCallback;
     private readonly TimeSpan _interval;
     private readonly object _lock = new();
+    private readonly ILogger<ActivityDrivenTimer>? _logger;
     
     private CancellationTokenSource? _cts;
     private bool _isDisposed;
 
     /// <param name="swapCallback">Function to execute. Should return TRUE if it wants to pulse again, FALSE to sleep.</param>
     /// <param name="interval">Time between pulses.</param>
-    public ActivityDrivenTimer(Func<Task<bool>> swapCallback, TimeSpan interval)
+    /// <param name="logger"></param>
+    public ActivityDrivenTimer(Func<Task<bool>> swapCallback, TimeSpan interval, ILogger<ActivityDrivenTimer>? logger = null)
     {
         _swapCallback = swapCallback;
         _interval = interval;
+        _logger = logger;
     }
 
     /// <summary>
@@ -28,6 +33,7 @@ public class ActivityDrivenTimer : IDisposable
 
             _cts = new CancellationTokenSource();
             _ = PulseLoop(_cts.Token);
+            _logger?.LogDebug("Swap timer woke up.");
         }
     }
 
@@ -39,11 +45,9 @@ public class ActivityDrivenTimer : IDisposable
 
             while (keepPulsing && !token.IsCancellationRequested)
             {
-                // Wait first to batch the initial burst of calls
                 await Task.Delay(_interval, token);
-
-                // Execute the swap and ask: "Should I stay awake?"
-                keepPulsing = await _swapCallback();
+                
+                keepPulsing = !await _swapCallback();
             }
         }
         catch (OperationCanceledException) { }
@@ -54,6 +58,8 @@ public class ActivityDrivenTimer : IDisposable
                 _cts?.Dispose();
                 _cts = null;
             }
+            
+            _logger?.LogDebug("Swap went to sleep.");
         }
     }
 

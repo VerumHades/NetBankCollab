@@ -168,7 +168,7 @@ public class CapturedAccountActionsProcessor(IStorageStrategy storageStrategy) :
                     _dirtyAccounts.Add(account);
                     _successfulTcs.Add(tcs);
                 }
-                catch (ArgumentException ex)
+                catch (Exception ex)
                 {
                     tcs.TrySetException(ex);
                 }

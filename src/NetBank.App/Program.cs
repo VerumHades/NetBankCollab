@@ -51,7 +51,8 @@ public class Program
                     return Task.FromResult(false);
                 }
             }, 
-            configuration.BufferSwapDelay
+            configuration.BufferSwapDelay,
+            loggerFactory.CreateLogger<ActivityDrivenTimer>()
         );
         
         var service = new AccountServiceBufferProxy(coordinator);
