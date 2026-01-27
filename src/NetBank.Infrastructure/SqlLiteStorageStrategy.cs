@@ -14,9 +14,6 @@ public class SqliteStorageStrategy : IStorageStrategy
 
     public SqliteStorageStrategy(string dbPath = "bank_data.db")
     {
-        // Ensures native SQLite binaries are loaded
-        SQLitePCL.Batteries.Init();
-
         _connectionString = $"Data Source={dbPath};Pooling=True;";
         InitializeDatabase();
     }

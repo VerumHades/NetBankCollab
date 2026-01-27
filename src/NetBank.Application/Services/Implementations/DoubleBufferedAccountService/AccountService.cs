@@ -39,7 +39,7 @@ public class AccountService: IAccountService, IDisposable
         };
     }
 
-    private IAccountService CurrentWriter
+    private AccountServiceBufferWriter CurrentWriter
     {
         get
         {
