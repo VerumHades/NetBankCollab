@@ -54,15 +54,17 @@ public class Program
             loggerFactory.CreateLogger<TcpCommandServer>()
         );
 
-        //var httpServer = new HttpServerHost(
-        //    args,
-        //    service,
-        //    configuration,
-        //    loggerFactory);
-        
-        //await Task.WhenAll(
-        await server.StartAsync(cancellationToken ?? CancellationToken.None);
-        //httpServer.StartAsync()
-        //);
+        var httpServer = new HttpServerHost(
+            args,
+            configuration,
+            loggerFactory, 
+            [service,proxy]
+            );
+
+
+        await Task.WhenAll(
+            server.StartAsync(cancellationToken ?? CancellationToken.None),
+            httpServer.StartAsync()
+        );
     }
 }
