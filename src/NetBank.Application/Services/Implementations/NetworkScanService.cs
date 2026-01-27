@@ -3,21 +3,26 @@ using System.Net.Http.Json;
 using System.Net.Sockets;
 using System.Text;
 using NetBank.NetworkScan;
+using NetBank.Services.NetworkScan;
 
 namespace NetBank.Services.Implementations;
 
 public class NetworkScanService : INetworkScanService
 {
-      private static readonly byte[] ProbeMessage = Encoding.ASCII.GetBytes("BC ");
-    private readonly HttpClient _httpClient;
+    private static readonly byte[] ProbeMessage = Encoding.ASCII.GetBytes("BC ");
+    private readonly HttpClient _http;
+    private readonly IScanProgressStore _store;
 
-    public NetworkScanService(HttpClient httpClient)
+    public NetworkScanService(HttpClient httpClient,IScanProgressStore store)
     {
-        _httpClient = httpClient;
+        _store = store;
+        _http= httpClient;
     }
 
-    public async Task StartScanAsync(ScanRequest request, CancellationToken ct = default)
+        public async Task StartScanAsync(ScanRequest request, CancellationToken ct = default)
     {
+        _store.Clear(); // clear previous scan results
+
         var startIp = IPAddress.Parse(request.IpRangeStart);
         var endIp = IPAddress.Parse(request.IpRangeEnd);
 
@@ -33,17 +38,17 @@ public class NetworkScanService : INetworkScanService
     private async Task ScanIpAsync(IPAddress ip, ScanRequest request, CancellationToken ct)
     {
         var progress = new ScanProgress(ip.ToString(), request.Port, "scanning", null);
-        await NotifyAsync(request.WebhookUrl, progress, ct);
+        await UpdateProgress(request, progress);
 
         try
         {
             using var client = new TcpClient();
+
             var connectTask = client.ConnectAsync(ip, request.Port);
 
             if (await Task.WhenAny(connectTask, Task.Delay(request.TimeoutMs, ct)) != connectTask)
             {
-                await NotifyAsync(request.WebhookUrl,
-                    progress with { Status = "timeout" }, ct);
+                await UpdateProgress(request, progress with { Status = "timeout" });
                 return;
             }
 
@@ -55,27 +60,36 @@ public class NetworkScanService : INetworkScanService
 
             if (await Task.WhenAny(readTask, Task.Delay(request.TimeoutMs, ct)) != readTask)
             {
-                await NotifyAsync(request.WebhookUrl,
-                    progress with { Status = "timeout" }, ct);
+                await UpdateProgress(request, progress with { Status = "timeout" });
                 return;
             }
 
             var response = Encoding.ASCII.GetString(buffer, 0, readTask.Result);
-
-            await NotifyAsync(request.WebhookUrl,
-                progress with { Status = "found", Response = response }, ct);
+            await UpdateProgress(request, progress with { Status = "found", Response = response });
         }
         catch (Exception ex)
         {
-            await NotifyAsync(request.WebhookUrl,
-                progress with { Status = "error", Response = ex.Message }, ct);
+            await UpdateProgress(request, progress with { Status = "error", Response = ex.Message });
         }
     }
 
-    private async Task NotifyAsync(string webhookUrl, ScanProgress progress, CancellationToken ct)
+    private async Task UpdateProgress(ScanRequest request, ScanProgress progress)
     {
-        await _httpClient.PostAsJsonAsync(webhookUrl, progress, ct);
+        _store.Add(progress); // save to store for polling
+
+        if (!string.IsNullOrWhiteSpace(request.WebhookUrl))
+        {
+            try
+            {
+                await _http.PostAsJsonAsync(request.WebhookUrl, progress);
+            }
+            catch
+            {
+                // silently ignore webhook errors
+            }
+        }
     }
+    
 
     private static IEnumerable<IPAddress> EnumerateIps(IPAddress start, IPAddress end)
     {
@@ -95,4 +109,5 @@ public class NetworkScanService : INetworkScanService
             yield return new IPAddress(bytes);
         }
     }
+    
 }

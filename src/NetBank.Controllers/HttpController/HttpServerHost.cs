@@ -44,7 +44,7 @@ public class HttpServerHost
                 manager.FeatureProviders.Clear();
                 manager.FeatureProviders.Add(new DerivedControllerFeatureProvider(typeof(HttpControllerBase)));
             });
-
+        builder.Services.AddHttpClient();
         foreach (var service in services)
         {
             builder.Services.AddSingleton(service);

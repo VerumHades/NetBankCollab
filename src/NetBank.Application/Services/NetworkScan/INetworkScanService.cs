@@ -1,6 +1,6 @@
 ﻿using NetBank.NetworkScan;
 
-namespace NetBank.Services;
+namespace NetBank.Services.NetworkScan;
 
 public interface INetworkScanService
 {

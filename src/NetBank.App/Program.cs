@@ -6,7 +6,9 @@ using NetBank.Controllers.TcpController;
 using NetBank.Controllers.TcpController.Parsing;
 using NetBank.Infrastructure;
 using NetBank.Services;
+using NetBank.Services.Implementations;
 using NetBank.Services.Implementations.DoubleBufferedAccountService;
+using NetBank.Services.NetworkScan;
 
 namespace NetBank.App;
 
@@ -53,12 +55,14 @@ public class Program
             configuration.InactivityTimeout,
             loggerFactory.CreateLogger<TcpCommandServer>()
         );
-
+        var networStore = new InMemoryScanProgressStrategy();
+        var networkScanner = new NetworkScanService(new HttpClient(),networStore);
+        
         var httpServer = new HttpServerHost(
             args,
             configuration,
             loggerFactory, 
-            [service,proxy]
+            [service,proxy,networkScanner]
             );
 
 
