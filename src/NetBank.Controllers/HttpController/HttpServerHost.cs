@@ -66,4 +66,11 @@ public class HttpServerHost
         _logger.LogInformation("Starting HTTPS server on {Url}", url);
         return _app.RunAsync(url);
     }
+
+    public Task StopAsync()
+    {
+        var url = _configuration.FrontEndURl;
+        _logger.LogInformation("Stopping HTTPS server on {Url}", url);;
+        return _app.StopAsync();
+    }
 }
