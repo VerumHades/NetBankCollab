@@ -63,7 +63,7 @@ public class Program
 
 
         await Task.WhenAll(
-            server.StartAsync(cancellationToken),
+            server.StartAsync(cancellationToken ?? CancellationToken.None),
             httpServer.StartAsync()
         );
     }
