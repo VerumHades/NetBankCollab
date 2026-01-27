@@ -1,4 +1,6 @@
-﻿using NetBank.Infrastructure;
+﻿using System.Net;
+using System.Net.Sockets;
+using NetBank.App;
 
 namespace EndToEndTests;
 
@@ -11,23 +13,22 @@ public class BankServerFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        Port = 9005; // Or use a dynamic port helper
+        Port = 5000;
         
-        // Start the REAL app Program
-        _serverTask = NetBank.App.Program.RunServerAsync(
-            new[] { "--ip", Address, "--port", $"{Port}" }, 
-            _cts.Token);
+        // Start the REAL app Program with the dynamic port
+        //_serverTask = Program.RunServerAsync(
+        //    new[] { "--ip", Address, "--port", Port.ToString() }, 
+        //    _cts.Token);
 
-        // Wait for the server to be ready
         await Task.Delay(500); 
     }
 
     public async Task DisposeAsync()
     {
-        _cts.Cancel();
+        await _cts.CancelAsync();
         if (_serverTask != null)
         {
-            await Task.WhenAny(_serverTask, Task.Delay(1000));
+            await Task.WhenAny(_serverTask, Task.Delay(2000));
         }
         _cts.Dispose();
     }
