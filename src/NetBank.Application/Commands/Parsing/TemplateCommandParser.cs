@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace NetBank.Controllers.TcpController.Parsing;
+namespace NetBank.Commands.Parsing;
 
 public class TemplateCommandParser : ICommandParser
 {

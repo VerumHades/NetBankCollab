@@ -1,11 +1,11 @@
-﻿using NetBank.Common;
-using NetBank.Controllers.TcpController.Parsing;
+﻿using System.Windows.Input;
+using NetBank.Commands.Parsing;
 using NetBank.Errors;
 using NetBank.Services;
 
-namespace NetBank.Controllers.TcpController;
+namespace NetBank.Commands;
 
-public class CommandExecutor(IAccountService service, ICommandParser parser, Configuration.Configuration config): ICommandInterpreter
+public class CommandExecutor(IAccountService service, ICommandParser parser, ICommandDelegator delegator, Configuration.Configuration config): ICommandInterpreter
 {
     public async Task<string> ExecuteTextCommand(string commandString)
     {
@@ -14,13 +14,15 @@ public class CommandExecutor(IAccountService service, ICommandParser parser, Con
         {
             dto = parser.ParseCommandToDTO(commandString);
 
+            if (dto.GetType() == typeof(WithIpDto) && 
+                delegator.ShouldBeDelegated(((WithIpDto)dto).Ip)) 
+                return await delegator.DelegateTextCommand(commandString, ((WithIpDto)dto).Ip);
+            
             return dto switch
             {
-                // Identity & Config
                 BankCodeDto =>
                     $"BC {config.ServerIp}",
-
-                // Account Lifecycle
+                
                 CreateAccountDto =>
                     $"AC {await service.CreateAccount()}/{config.ServerIp}",
 

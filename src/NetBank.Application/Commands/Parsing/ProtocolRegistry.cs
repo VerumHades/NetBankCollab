@@ -1,4 +1,4 @@
-﻿namespace NetBank.Controllers.TcpController.Parsing;
+﻿namespace NetBank.Commands.Parsing;
 
 public static class ProtocolRegistry
 {

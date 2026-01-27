@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Text;
 
-namespace NetBank.Controllers.TcpController.Parsing;
+namespace NetBank.Commands.Parsing;
 
 public class Template<T> where T : new()
 {

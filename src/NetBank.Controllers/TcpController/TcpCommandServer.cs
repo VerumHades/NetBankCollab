@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using NetBank.Commands;
 using NetBank.Errors;
 
 // Assuming your ModuleException is here

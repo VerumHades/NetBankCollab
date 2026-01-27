@@ -1,15 +1,19 @@
-﻿namespace NetBank.Controllers.TcpController.Parsing;
+﻿
+namespace NetBank.Commands.Parsing;
 
+public record WithIpDto()
+{
+    public string Ip { get; set; } = string.Empty; 
+}
 // Simple records still work fine with parameterless defaults
 public record BankCodeDto();
 public record CreateAccountDto();
 public record BankTotalDto();
 public record BankClientsDto();
 
-public record DepositDto
+public record DepositDto: WithIpDto
 {
     public int Account { get; set; } = -1;
-    public string Ip { get; set; } = string.Empty; 
     public long Amount { get; set; }
 
     // Parameterless constructor for Template<T>
@@ -24,10 +28,9 @@ public record DepositDto
     }
 }
 
-public record WithdrawDto
+public record WithdrawDto: WithIpDto
 {
     public int Account { get; set; } = -1;
-    public string Ip { get; set; } = string.Empty; 
     public long Amount { get; set; }
 
     public WithdrawDto() { }
@@ -40,10 +43,9 @@ public record WithdrawDto
     }
 }
 
-public record BalanceDto
+public record BalanceDto: WithIpDto
 {
     public int Account { get; set; } = -1;
-    public string Ip { get; set; } = string.Empty;
 
     public BalanceDto() { }
 
@@ -54,10 +56,9 @@ public record BalanceDto
     }
 }
 
-public record RemoveAccountDto
+public record RemoveAccountDto: WithIpDto
 {
     public int Account { get; set; } = -1;
-    public string Ip { get; set; } = string.Empty;
 
     public RemoveAccountDto() { }
 
