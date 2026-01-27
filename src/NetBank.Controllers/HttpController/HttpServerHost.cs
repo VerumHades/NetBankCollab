@@ -24,9 +24,9 @@ public class HttpServerHost
 
     public HttpServerHost(
         string[] args,
-        AccountServiceBufferProxy accountService,
         Configuration.Configuration config,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory,
+        List<object> services)
     {
         _configuration = config; 
         _logger = loggerFactory.CreateLogger<HttpServerHost>();
@@ -44,8 +44,11 @@ public class HttpServerHost
                 manager.FeatureProviders.Clear();
                 manager.FeatureProviders.Add(new DerivedControllerFeatureProvider(typeof(HttpControllerBase)));
             });
-        
-        builder.Services.AddSingleton(accountService);
+
+        foreach (var service in services)
+        {
+            builder.Services.AddSingleton(service);
+        }
         
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();

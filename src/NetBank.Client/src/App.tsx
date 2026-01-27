@@ -1,13 +1,13 @@
-
 import './App.css'
-import {Button} from "@/components/ui/button.tsx";
+import Dashboard from "@/components/Dashboard.tsx";
+import { ThemeProvider } from "@/components/theme/theme-provider"
 
 function App() {
 
   return (
-      <div className="flex min-h-svh flex-col items-center justify-center">
-          <Button>Click me</Button>
-      </div>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <Dashboard/>
+      </ThemeProvider>
   )
 }
 

@@ -52,9 +52,9 @@ public class Program
 
         var httpServer = new HttpServerHost(
             args,
-            service,
             configuration,
-            loggerFactory
+            loggerFactory, 
+            [service,proxy]
             );
 
 
