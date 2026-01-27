@@ -14,9 +14,9 @@ public class CommandExecutor(IAccountService service, ICommandParser parser, ICo
         {
             dto = parser.ParseCommandToDTO(commandString);
 
-            if (dto.GetType() == typeof(WithIpDto) && 
-                delegator.ShouldBeDelegated(((WithIpDto)dto).Ip)) 
-                return await delegator.DelegateTextCommand(commandString, ((WithIpDto)dto).Ip);
+            if (dto is WithIpDto ipDto &&
+                delegator.ShouldBeDelegated(ipDto.Ip))
+                return await delegator.DelegateTextCommand(commandString, ipDto.Ip);
             
             return dto switch
             {

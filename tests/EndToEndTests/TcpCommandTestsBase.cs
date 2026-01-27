@@ -6,18 +6,24 @@ using Xunit.Sdk;
 
 namespace EndToEndTests;
 
-public class TcpCommandTests : IClassFixture<BankServerFixture>
+public abstract class TcpCommandTestsBase : IClassFixture<BankServerFixture>
 {
     private readonly BankServerFixture _fixture;
-
-    public TcpCommandTests(BankServerFixture fixture)
+    protected abstract string ActiveAddress { get; }
+    
+    protected abstract int ActivePort { get; }
+    protected int Port => ActivePort;
+    
+    protected string Address => ActiveAddress;
+    
+    public TcpCommandTestsBase(BankServerFixture fixture)
     {
         _fixture = fixture;
     }
 
-    private async Task<string> SendCommand(string command)
+    private async Task<string> SendCommand(string command, bool useActive = false)
     {
-        using var client = new TcpClient(_fixture.Address, _fixture.Port);
+        using var client = new TcpClient(useActive ? Address : _fixture.Address, useActive ? Port : _fixture.Port);
         using var writer = new StreamWriter(client.GetStream()) { AutoFlush = true };
         using var reader = new StreamReader(client.GetStream());
 
@@ -33,8 +39,8 @@ public class TcpCommandTests : IClassFixture<BankServerFixture>
     [Fact]
     public async Task Test_BankCode_Command()
     {
-        var response = await SendCommand("BC");
-        Assert.Equal($"BC {_fixture.Address}", response);
+        var response = await SendCommand("BC", true);
+        Assert.Equal($"BC {Address}", response);
     }
     
     class AccountCreateResponseDto
@@ -45,10 +51,10 @@ public class TcpCommandTests : IClassFixture<BankServerFixture>
     
     private async Task<int> CreateAccount()
     {
-        var response = await SendCommand("AC");
+        var response = await SendCommand("AC", true);
         Assert.StartsWith("AC ", response);
         var dto = new Template<AccountCreateResponseDto>("AC {Account}/{Ip}").Parse(response);
-        Assert.Equal(_fixture.Address, dto.Ip);
+        Assert.Equal(Address, dto.Ip);
         return dto.Account;
     }
     
@@ -65,7 +71,7 @@ public class TcpCommandTests : IClassFixture<BankServerFixture>
     
     private async Task<long> GetAccountBalance(int id)
     {
-        var command = GetTemplate<BalanceDto>("AB").Construct(new BalanceDto(id, _fixture.Address));
+        var command = GetTemplate<BalanceDto>("AB").Construct(new BalanceDto(id, Address));
         var response = await SendCommand(command);
         Assert.StartsWith("AB ", response);
         var dto = new Template<AccountBalanceResponseDto>("AB {Amount}").Parse(response);
@@ -88,7 +94,7 @@ public class TcpCommandTests : IClassFixture<BankServerFixture>
 
     private async Task Deposit(int accountId, long amount)
     {
-        var command = GetTemplate<DepositDto>("AD").Construct(new DepositDto(accountId, _fixture.Address, amount));
+        var command = GetTemplate<DepositDto>("AD").Construct(new DepositDto(accountId, Address, amount));
         await SendCommand(command);
     }
     
@@ -102,7 +108,7 @@ public class TcpCommandTests : IClassFixture<BankServerFixture>
 
     private async Task<string> Withdraw(int accountId, long amount)
     {
-        var command = GetTemplate<WithdrawDto>("AW").Construct(new WithdrawDto(accountId, _fixture.Address, amount));
+        var command = GetTemplate<WithdrawDto>("AW").Construct(new WithdrawDto(accountId, Address, amount));
         return await SendCommand(command);
     }
     
@@ -170,8 +176,8 @@ public class TcpCommandTests : IClassFixture<BankServerFixture>
     
     private async Task<string> Remove(int accountId)
     {
-        var command = GetTemplate<RemoveAccountDto>("AR").Construct(new RemoveAccountDto(accountId, _fixture.Address));
-        return await SendCommand(command);
+        var command = GetTemplate<RemoveAccountDto>("AR").Construct(new RemoveAccountDto(accountId, Address));
+        return await SendCommand(command, true);
     }
     
     [Fact]
@@ -196,7 +202,7 @@ public class TcpCommandTests : IClassFixture<BankServerFixture>
 
     private async Task<long> BankTotal()
     {
-        var response = await SendCommand("BA");
+        var response = await SendCommand("BA", true);
         return new Template<BankAmountResponseDto>("BA {Amount}").Parse(response).Amount;
     }
     
@@ -246,7 +252,7 @@ public class TcpCommandTests : IClassFixture<BankServerFixture>
 
     private async Task<int> BankNumberOfClients()
     {
-        var response = await SendCommand("BN");
+        var response = await SendCommand("BN", true);
         return new Template<BankNumberOfClientsDto>("BN {Clients}").Parse(response).Clients;
     }
     

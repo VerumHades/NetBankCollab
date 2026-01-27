@@ -18,17 +18,24 @@ public class Program
     static async Task Main(string[] args)
     {
         SQLitePCL.Batteries.Init();
-
-        await RunServerAsync(args);
-    }
-
-    public static async Task RunServerAsync(string[] args, CancellationToken? cancellationToken = null)
-    {
-        cancellationToken ??= CancellationToken.None;
-        
+    
         using var loggerFactory = LoggerFactory.Create(builder => {
             builder.AddConsole().SetMinimumLevel(LogLevel.Debug);
         });
+
+        try
+        {
+            await RunServerAsync(args, loggerFactory);
+        }
+        catch (Exception ex)
+        {
+            loggerFactory.CreateLogger<Program>().LogCritical(ex, "Unexpected exception.");
+        }
+    }
+
+    public static async Task RunServerAsync(string[] args, ILoggerFactory loggerFactory, CancellationToken? cancellationToken = null)
+    {
+        cancellationToken ??= CancellationToken.None;
     
         Configuration.Configuration? configuration = null;
         try
@@ -41,13 +48,24 @@ public class Program
             return;
         }
 
-        var storage = new SqliteStorageStrategy();
+        var storage = new SqliteStorageStrategy(configuration.SqlliteFilename);
         
         var proxy = new SwappableStorageProxy(storage);
         var service = new AccountService(proxy, configuration, loggerFactory);
 
+        if (configuration.DelegationTargetPortRangeStart >= configuration.DelegationTargetPortRangeEnd)
+        {
+            loggerFactory.CreateLogger<Program>().LogCritical("Delegation port range conform to: start < end.");
+            return;
+        }
+
         var commandParser = new TemplateCommandParser();
-        var commandDelegator = new TcpCommandDelegator(IPAddress.Parse(configuration.ServerIp), configuration.DelegationTargetPort, loggerFactory.CreateLogger<TcpCommandDelegator>());
+        var commandDelegator = new TcpCommandDelegator(
+            IPAddress.Parse(configuration.ServerIp), 
+            configuration.DelegationTargetPortRangeStart, 
+            configuration.DelegationTargetPortRangeEnd, 
+            configuration.DelegationTargetPort, 
+            loggerFactory.CreateLogger<TcpCommandDelegator>());
         var commandExecutor = new CommandExecutor(service, commandParser, commandDelegator, configuration);
 
         var server = new TcpCommandServer(
