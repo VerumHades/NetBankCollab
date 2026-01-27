@@ -35,6 +35,17 @@ public class HttpServerHost
         builder.Logging.AddConsole();
         builder.Logging.AddDebug();
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
+            {
+                policy
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials()
+                    .SetIsOriginAllowed(_ => true); 
+            });
+        });
         
         builder.Services
             .AddControllers()

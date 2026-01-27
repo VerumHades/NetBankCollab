@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { MoreHorizontal } from "lucide-react";
+import TcpScanLive from "@/components/custom/TcpScanLive.tsx";
 
 export default function Dashboard() {
     return (
@@ -14,9 +15,7 @@ export default function Dashboard() {
                 <nav className="space-y-2 text-sm">
                     {[
                         "Dashboard",
-                        "Lifecycle",
                         "Analytics",
-                        "Projects",
                         "Team",
                     ].map((item) => (
                         <div
@@ -34,22 +33,8 @@ export default function Dashboard() {
                 {/* Top stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <StatCard title="Total Revenue" value="$1,250.00" badge="+12.5%" />
-                    <StatCard title="New Customers" value="1,234" badge="-20%" />
-                    <StatCard title="Active Accounts" value="45,678" badge="+12.5%" />
-                    <StatCard title="Growth Rate" value="4.5%" badge="+4.5%" />
                 </div>
-
-                {/* Chart placeholder */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Total Visitors</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="h-56 rounded-xl bg-muted flex items-center justify-center text-sm text-muted-foreground">
-                            Chart goes here (Recharts / AreaChart)
-                        </div>
-                    </CardContent>
-                </Card>
+                <TcpScanLive/>
 
                 {/* Table */}
                 <Card>

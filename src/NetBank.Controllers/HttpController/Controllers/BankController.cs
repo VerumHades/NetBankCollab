@@ -24,7 +24,7 @@ public class BankController : HttpControllerBase
     /// <summary>
     /// Retrieves bank-wide summary information.
     /// </summary>
-    [HttpGet("bank")]
+    [HttpGet("summary")]
     public async Task<ActionResult<object>> GetBankSummary()
     {
         var total = await _accountService.BankTotal();

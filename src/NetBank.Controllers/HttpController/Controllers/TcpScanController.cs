@@ -20,7 +20,7 @@ public class TcpScanController: HttpControllerBase
     /// Starts a TCP scan on the local network.
     /// Progress is sent to the client using websocket
     /// </summary>
-    [HttpPost]
+    [HttpPost("start")]
     public IActionResult StartScan([FromBody] ScanRequest request)
     {
         _ = Task.Run(() => _scanService.StartScanAsync(request));
