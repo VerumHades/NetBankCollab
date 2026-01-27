@@ -58,13 +58,13 @@ public class Program
             loggerFactory.CreateLogger<TcpCommandServer>()
         );
         var networStore = new InMemoryScanProgressStrategy();
-        var networkScanner = new NetworkScanService(new HttpClient(),networStore);
+        var networkScanner = new NetworkScanService(new HttpClient(),networStore,loggerFactory.CreateLogger<NetworkScanService>());
         
         var servicesToRegister = new Dictionary<Type, object>
         {
             { typeof(IAccountService), service },
             { typeof(SwappableStorageProxy), proxy },
-            { typeof(NetworkScanService), networkScanner }
+            { typeof(INetworkScanService), networkScanner }
         };
 
         

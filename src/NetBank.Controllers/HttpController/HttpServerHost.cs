@@ -33,6 +33,7 @@ public class HttpServerHost
         var builder = WebApplication.CreateBuilder();
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
+        builder.Logging.AddDebug();
 
         
         builder.Services
