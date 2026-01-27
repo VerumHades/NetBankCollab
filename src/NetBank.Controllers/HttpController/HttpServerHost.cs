@@ -58,6 +58,7 @@ public class HttpServerHost
         _app.UseRouting();
 
         _app.UseSwagger();
+        _app.UseWebSockets();
         _app.UseSwaggerUI();
 
         _app.MapControllers();
