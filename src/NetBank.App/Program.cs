@@ -14,11 +14,15 @@ public class Program
 {
     static async Task Main(string[] args)
     {
+        SQLitePCL.Batteries.Init();
+
         await RunServerAsync(args);
     }
 
-    public static async Task RunServerAsync(string[] args, CancellationToken cancellationToken = default)
+    public static async Task RunServerAsync(string[] args, CancellationToken? cancellationToken = null)
     {
+        cancellationToken ??= CancellationToken.None;
+        
         using var loggerFactory = LoggerFactory.Create(builder => {
             builder.AddConsole().SetMinimumLevel(LogLevel.Debug);
         });
@@ -50,17 +54,15 @@ public class Program
             loggerFactory.CreateLogger<TcpCommandServer>()
         );
 
-        var httpServer = new HttpServerHost(
-            args,
-            service,
-            configuration,
-            loggerFactory
-            );
-
-
-        await Task.WhenAll(
-            server.StartAsync(cancellationToken),
-            httpServer.StartAsync()
-        );
+        //var httpServer = new HttpServerHost(
+        //    args,
+        //    service,
+        //    configuration,
+        //    loggerFactory);
+        
+        //await Task.WhenAll(
+        await server.StartAsync(cancellationToken ?? CancellationToken.None);
+        //httpServer.StartAsync()
+        //);
     }
 }

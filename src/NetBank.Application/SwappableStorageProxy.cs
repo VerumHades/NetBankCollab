@@ -1,62 +1,51 @@
-﻿namespace NetBank;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using NetBank.Common;
 
-public class SwappableStorageProxy : IStorageStrategy
+namespace NetBank;
+
+public class SwappableStorageProxy(IStorageStrategy initialStrategy) : IStorageStrategy
 {
-    private IStorageStrategy _currentStrategy;
-    private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+    private IStorageStrategy _currentStrategy = initialStrategy;
+    private readonly AsyncReaderWriterLock _lock = new();
 
-    public SwappableStorageProxy(IStorageStrategy initialStrategy)
+    public async Task SwapStrategy(IStorageStrategy newStrategy)
     {
-        _currentStrategy = initialStrategy;
-    }
-
-    /// <summary>
-    /// Swaps the underlying storage strategy safely. 
-    /// Blocks until all current operations finish, then prevents new ones until swap is done.
-    /// </summary>
-    public void SwapStrategy(IStorageStrategy newStrategy)
-    {
-        _lock.EnterWriteLock();
-        try
-        {
+        // Request exclusive access. This waits for all current ExecuteAsync 
+        // calls to finish and blocks new ones from starting.
+        //using (await _lock.WriterLockAsync())
+        //{
             _currentStrategy = newStrategy;
-        }
-        finally
-        {
-            _lock.ExitWriteLock();
-        }
+        //}
     }
 
     private async Task<T> ExecuteAsync<T>(Func<IStorageStrategy, Task<T>> operation)
     {
-        _lock.EnterReadLock();
-        try
-        {
+        // Request shared access. Many threads can enter here at once.
+        //using (await _lock.ReaderLockAsync())
+        //{
             return await operation(_currentStrategy);
-        }
-        finally
-        {
-            _lock.ExitReadLock();
-        }
+        //}
     }
 
-    // --- Interface Implementation ---
 
     public Task<IReadOnlyList<AccountIdentifier>> CreateAccounts(int count) 
-        => ExecuteAsync(s => s.CreateAccounts(count));
+        => _currentStrategy.CreateAccounts(count);
 
     public Task<IReadOnlyList<AccountIdentifier>> RemoveAccounts(IEnumerable<AccountIdentifier> accounts) 
-        => ExecuteAsync(s => s.RemoveAccounts(accounts));
+        => _currentStrategy.RemoveAccounts(accounts);
 
     public Task<IReadOnlyList<AccountIdentifier>> UpdateAll(IEnumerable<Account> amounts) 
-        => ExecuteAsync(s => s.UpdateAll(amounts));
+        => _currentStrategy.UpdateAll(amounts);
 
     public Task<IReadOnlyList<Account>> GetAll(IEnumerable<AccountIdentifier> accounts) 
-        => ExecuteAsync(s => s.GetAll(accounts));
+        => _currentStrategy.GetAll(accounts);
 
-    public Task<Amount> BankTotal() 
-        => ExecuteAsync(s => s.BankTotal());
+    public Task<Amount> BankTotal()
+        => _currentStrategy.BankTotal();
 
-    public Task<int> BankNumberOfClients() 
-        => ExecuteAsync(s => s.BankNumberOfClients());
+    public Task<int> BankNumberOfClients()
+        => _currentStrategy.BankNumberOfClients();
 }

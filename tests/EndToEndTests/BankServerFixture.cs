@@ -1,4 +1,6 @@
-﻿namespace EndToEndTests;
+﻿using NetBank.Infrastructure;
+
+namespace EndToEndTests;
 
 public class BankServerFixture : IAsyncLifetime
 {
