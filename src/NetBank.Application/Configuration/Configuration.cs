@@ -6,7 +6,7 @@ public class Configuration
 {
     [JsonPropertyName("serverIp")]
     [CliOption("--ip", "-i", "IP address for the orchestrator server", ValidationType.NonEmptyString)]
-    public string ServerIp { get; set; } = "0.0.0.0";
+    public string ServerIp { get; set; } = "127.0.0.1";
 
     [JsonPropertyName("serverPort")]
     [CliOption("--port", "-p", "Port for the TCP orchestrator server", ValidationType.MustBePositive)]
