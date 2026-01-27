@@ -35,31 +35,8 @@ public class Program
 
         var storage = new SqliteStorageStrategy();
         
-        var processor = new CapturedAccountActionsProcessor(storage);
-        var coordinator = new DoubleBufferedAccountCoordinator(processor);
-        
-        using var swapTimer = new ActivityDrivenTimer(
-            () =>
-            {
-                try
-                {
-                    return coordinator.TrySwap();
-                }
-                catch (Exception e)
-                {
-                    loggerFactory.CreateLogger("BufferObserver").LogError(e, "Buffer swap failed.");
-                    return Task.FromResult(false);
-                }
-            }, 
-            configuration.BufferSwapDelay,
-            loggerFactory.CreateLogger<ActivityDrivenTimer>()
-        );
-        
-        var service = new AccountServiceBufferProxy(coordinator);
-        service.OnActivity = () =>
-        {
-            swapTimer.WakeUp();
-        };
+        var proxy = new SwappableStorageProxy(storage);
+        var service = new AccountService(proxy, configuration, loggerFactory);
 
         var commandParser = new TemplateCommandParser();
         var commandExecutor = new CommandExecutor(service, commandParser, configuration);

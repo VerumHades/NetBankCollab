@@ -12,8 +12,4 @@
       <ProjectReference Include="..\NetBank.Domain\NetBank.Domain.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Services\Implementations\" />
-    </ItemGroup>
-
 </Project>
