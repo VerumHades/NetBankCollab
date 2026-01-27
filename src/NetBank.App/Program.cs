@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Microsoft.Extensions.Logging;
 using NetBank.Common;
+using NetBank.Controllers.HttpController;
 using NetBank.Controllers.TcpController;
 using NetBank.Controllers.TcpController.Parsing;
 using NetBank.Infrastructure;
@@ -49,6 +50,17 @@ public class Program
             loggerFactory.CreateLogger<TcpCommandServer>()
         );
 
-        await server.StartAsync(cancellationToken);
+        var httpServer = new HttpServerHost(
+            args,
+            service,
+            configuration,
+            loggerFactory
+            );
+
+
+        await Task.WhenAll(
+            server.StartAsync(cancellationToken),
+            httpServer.StartAsync()
+        );
     }
 }
