@@ -58,11 +58,18 @@ public class Program
         var networStore = new InMemoryScanProgressStrategy();
         var networkScanner = new NetworkScanService(new HttpClient(),networStore);
         
+        var servicesToRegister = new Dictionary<Type, object>
+        {
+            { typeof(IAccountService), service },
+            { typeof(SwappableStorageProxy), proxy },
+            { typeof(NetworkScanService), networkScanner }
+        };
+
+        
         var httpServer = new HttpServerHost(
-            args,
             configuration,
             loggerFactory, 
-            [service,proxy,networkScanner]
+            servicesToRegister
             );
 
 

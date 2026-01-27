@@ -23,15 +23,14 @@ public class HttpServerHost
     private readonly Configuration.Configuration _configuration;
 
     public HttpServerHost(
-        string[] args,
         Configuration.Configuration config,
         ILoggerFactory loggerFactory,
-        List<object> services)
+          Dictionary<Type, object> services)
     {
         _configuration = config; 
         _logger = loggerFactory.CreateLogger<HttpServerHost>();
 
-        var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder();
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
 
@@ -45,9 +44,9 @@ public class HttpServerHost
                 manager.FeatureProviders.Add(new DerivedControllerFeatureProvider(typeof(HttpControllerBase)));
             });
         builder.Services.AddHttpClient();
-        foreach (var service in services)
+        foreach (var kvp in services)
         {
-            builder.Services.AddSingleton(service);
+            builder.Services.AddSingleton(kvp.Key, kvp.Value);
         }
         
         builder.Services.AddEndpointsApiExplorer();
