@@ -1,14 +1,13 @@
+using System.Net;
+
 namespace NetBank.Configuration
 {
-    /// <summary>
-    /// Specifies the type of validation for a CLI option.
-    /// </summary>
     public enum ValidationType
     {
-        None,           // No validation
-        MustBePositive, // Integer or long must be > 0
-        NonEmptyString  // String must not be null or empty
-        // Add more validation types as needed
+        None,
+        MustBePositive,
+        NonEmptyString,
+        MustBeIpAddress // New validation type
     }
 
     [AttributeUsage(AttributeTargets.Property)]
@@ -31,17 +30,13 @@ namespace NetBank.Configuration
             Validation = validation;
         }
 
-        /// <summary>
-        /// Validates a parsed value against the ValidationType specified in the attribute.
-        /// Throws ArgumentException if validation fails.
-        /// </summary>
         public void Validate(object? value)
         {
             switch (Validation)
             {
                 case ValidationType.MustBePositive:
-                    if(value == null)
-                        throw new ArgumentException($"Option '{Name}' is required to be a non-null int or long.");
+                    if (value == null)
+                        throw new ArgumentException($"Option '{Name}' is required.");
                     if (value is int intValue && intValue <= 0)
                         throw new ArgumentException($"Option '{Name}' must be positive.");
                     if (value is long longValue && longValue <= 0)
@@ -49,8 +44,19 @@ namespace NetBank.Configuration
                     break;
 
                 case ValidationType.NonEmptyString:
-                    if (value == null || (value is string strValue && string.IsNullOrWhiteSpace(strValue)))
-                        throw new ArgumentException($"Option '{Name}' is required to be a non-null string.");
+                    if (value == null || (value is string str && string.IsNullOrWhiteSpace(str)))
+                        throw new ArgumentException($"Option '{Name}' cannot be empty.");
+                    break;
+
+                case ValidationType.MustBeIpAddress:
+                    if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
+                        throw new ArgumentException($"Option '{Name}' is required.");
+
+                    string ipString = value.ToString()!;
+                    if (!IPAddress.TryParse(ipString, out _))
+                    {
+                        throw new ArgumentException($"Option '{Name}' contains an invalid IP address format: '{ipString}'.");
+                    }
                     break;
 
                 case ValidationType.None:

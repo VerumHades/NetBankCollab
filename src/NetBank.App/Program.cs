@@ -1,9 +1,10 @@
 ﻿using System.Net;
 using Microsoft.Extensions.Logging;
+using NetBank.Commands;
+using NetBank.Commands.Parsing;
 using NetBank.Common;
 using NetBank.Controllers.HttpController;
 using NetBank.Controllers.TcpController;
-using NetBank.Controllers.TcpController.Parsing;
 using NetBank.Infrastructure;
 using NetBank.Services;
 using NetBank.Services.Implementations.DoubleBufferedAccountService;
@@ -44,7 +45,8 @@ public class Program
         var service = new AccountService(proxy, configuration, loggerFactory);
 
         var commandParser = new TemplateCommandParser();
-        var commandExecutor = new CommandExecutor(service, commandParser, configuration);
+        var commandDelegator = new TcpCommandDelegator(IPAddress.Parse(configuration.ServerIp), configuration.DelegationTargetPort, loggerFactory.CreateLogger<TcpCommandDelegator>());
+        var commandExecutor = new CommandExecutor(service, commandParser, commandDelegator, configuration);
 
         var server = new TcpCommandServer(
             commandExecutor, 
@@ -60,7 +62,6 @@ public class Program
             loggerFactory, 
             [service,proxy]
             );
-
 
         await Task.WhenAll(
             server.StartAsync(cancellationToken ?? CancellationToken.None),

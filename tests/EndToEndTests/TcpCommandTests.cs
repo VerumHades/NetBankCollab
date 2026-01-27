@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 using NetBank;
-using NetBank.Controllers.TcpController.Parsing;
+using NetBank.Commands.Parsing;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 

@@ -1,4 +1,4 @@
-﻿namespace NetBank.Controllers.TcpController;
+﻿namespace NetBank.Commands.Parsing;
 
 public interface ICommandParser
 {

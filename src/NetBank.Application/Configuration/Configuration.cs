@@ -5,12 +5,16 @@ namespace NetBank.Configuration;
 public class Configuration
 {
     [JsonPropertyName("serverIp")]
-    [CliOption("--ip", "-i", "IP address for the orchestrator server", ValidationType.NonEmptyString)]
+    [CliOption("--ip", "-i", "IP address for the orchestrator server", ValidationType.MustBeIpAddress)]
     public string ServerIp { get; set; } = "127.0.0.1";
 
     [JsonPropertyName("serverPort")]
     [CliOption("--port", "-p", "Port for the TCP orchestrator server", ValidationType.MustBePositive)]
     public int ServerPort { get; set; } = 5000;
+    
+    [JsonPropertyName("delegationTargetPort")]
+    [CliOption("--delegation-target-port", "-g", "Target port for the TCP command delegator", ValidationType.MustBePositive)]
+    public int DelegationTargetPort { get; set; } = 5001;
 
     [JsonPropertyName("networkInactivityTimeoutMs")]
     [CliOption("--timeout", "-t", "Network inactivity timeout in milliseconds", ValidationType.MustBePositive)]
