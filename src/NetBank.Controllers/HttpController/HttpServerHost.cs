@@ -65,7 +65,7 @@ public class HttpServerHost
         builder.Services.AddSwaggerGen();
 
         _app = builder.Build();
-
+        _app.UseCors("AllowAll");
         _app.UseRouting();
 
         _app.UseSwagger();

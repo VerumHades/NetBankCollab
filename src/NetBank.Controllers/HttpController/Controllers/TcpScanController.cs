@@ -25,6 +25,6 @@ public class TcpScanController: HttpControllerBase
     {
         _ = Task.Run(() => _scanService.StartScanAsync(request));
 
-        return Accepted(new { status = "scan_started" });
+        return Ok(new { status = "scan_started" });
     }
 }
