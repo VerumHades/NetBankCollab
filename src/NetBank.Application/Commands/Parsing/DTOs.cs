@@ -12,11 +12,11 @@ public record BankTotalDto();
 public record BankClientsDto();
 
 public record RobberyPlanDto{
-    public int Account { get; set; } = -1;
+    public int Amount { get; set; } = -1;
     public RobberyPlanDto() { }
     public RobberyPlanDto(int amount)
     {
-        Account = amount;
+        Amount = amount;
     }
 };
 

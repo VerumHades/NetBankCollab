@@ -5,7 +5,7 @@ using NetBank.Services;
 
 namespace NetBank.Commands;
 
-public class CommandExecutor(IAccountService service, ICommandParser parser, ICommandDelegator delegator, Configuration.Configuration config): ICommandInterpreter
+public class CommandExecutor(IAccountService service, ICommandParser parser, ICommandDelegator delegator, Configuration.Configuration config,BankRobberyService bankRobberyService): ICommandInterpreter
 {
     public async Task<string> ExecuteTextCommand(string commandString)
     {
@@ -44,7 +44,7 @@ public class CommandExecutor(IAccountService service, ICommandParser parser, ICo
                 BankClientsDto =>
                     $"BN {await service.BankNumberOfClients()}",
                 RobberyPlanDto r => 
-                    throw new NotImplementedException("Rp Not implemetnetd"),
+                    $"RB {await bankRobberyService.Scan(r.Amount)}",
 
                 _ => throw new ArgumentException($"Unsupported DTO type: {dto.GetType().Name}")
             };

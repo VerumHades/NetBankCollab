@@ -117,7 +117,14 @@ public class Program
             configuration.DelegationTargetPort, 
             loggerFactory.CreateLogger<TcpCommandDelegator>());
         
-        var commandExecutor = new CommandExecutor(service, commandParser, commandDelegator, configuration);
+        var networkStore = new InMemoryScanProgressStrategy();
+        var networkScanner = new NetworkScanService(networkStore,loggerFactory.CreateLogger<NetworkScanService>());
+
+        var bankRobberyService = new BankRobberyService(
+            loggerFactory.CreateLogger<BankRobberyService>(),
+            networkScanner 
+            );
+        var commandExecutor = new CommandExecutor(service, commandParser, commandDelegator, configuration,bankRobberyService);
 
         var server = new TcpCommandServer(
             commandExecutor, 
@@ -126,8 +133,7 @@ public class Program
             configuration.InactivityTimeout,
             loggerFactory.CreateLogger<TcpCommandServer>()
         );
-        var networStore = new InMemoryScanProgressStrategy();
-        var networkScanner = new NetworkScanService(networStore,loggerFactory.CreateLogger<NetworkScanService>());
+   
         
         var servicesToRegister = new Dictionary<Type, object>
         {
