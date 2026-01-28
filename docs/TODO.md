@@ -5,8 +5,9 @@ Each collaborator is expected to signal taking on tasks by adding their names in
 # TODOs
 
 - [x] (Filip Heger) Make CHANGELOG
-- [ ] (Filip Heger) Make sqllite database
-- [ ] (Michal Prihoda) Make Https controllers
+- [x] (Filip Heger) Make sqllite database
+- [x] (Michal Prihoda) Make Https controllers
+- [X] (Michal Prihoda) Make Network scanning service
 - [ ] (Michal Prihod) UI
 - [ ] (Michal Prihod) Database (Mssql)
 - [ ] Make README
