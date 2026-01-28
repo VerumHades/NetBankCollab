@@ -73,18 +73,19 @@ The application will start the OpenAPI documentation at:
 
 The application can be configured via command-line arguments. The following table lists all supported options, their defaults, and descriptions.
 
-| Option | Short | JSON Key | Type | Default | Description |
-|------|------|---------|------|---------|-------------|
-| `--ip` | `-i` | `serverIp` | string | `127.0.0.1` | IP address for the orchestrator server |
-| `--port` | `-p` | `serverPort` | int | `5000` | Port for the TCP orchestrator server |
-| `--delegation-target-port` | — | `delegationTargetPort` | int | `5001` | Target port for the TCP command delegator |
-| `--delegation-target-port-range-start` | — | `delegationTargetPortRangeStart` | int | `5000` | Start of the delegation target port range |
-| `--delegation-target-port-range-end` | — | `delegationTargetPortRangeEnd` | int | `5010` | End of the delegation target port range |
-| `--timeout` | `-t` | `networkInactivityTimeoutMs` | int (ms) | `5000` | Network inactivity timeout in milliseconds |
-| `--swap-delay` | `-d` | `bufferSwapDelayMs` | int (ms) | `50` | Delay before performing a buffer swap |
-| `--sql-lite-filename` | — | `sqliteFilename` | string | `database.db` | SQLite database filename |
-| `--log-filepath` | — | `logFilepath` | string | `log.txt` | File path for the log output |
-| *(none)* | — | `frontEndURl` | string | `http://localhost:8444` | Frontend application URL |
+| Option                                | Short | JSON Key                         | Type | Default                 | Description                               |
+|---------------------------------------|-------|----------------------------------|------|-------------------------|-------------------------------------------|
+| `--config`                            | -     | -                                | string | -                       | Path of the config you want to load       |
+| `--ip`                                | `-i`  | `serverIp`                       | string | `127.0.0.1`             | IP address for the orchestrator server    |
+| `--port`                              | `-p`  | `serverPort`                     | int | `5000`                  | Port for the TCP orchestrator server      |
+| `--delegation-target-port`            | —     | `delegationTargetPort`           | int | `5001`                  | Target port for the TCP command delegator |
+| `--delegation-target-port-range-start` | —     | `delegationTargetPortRangeStart` | int | `5000`                  | Start of the delegation target port range |
+| `--delegation-target-port-range-end`  | —     | `delegationTargetPortRangeEnd`   | int | `5010`                  | End of the delegation target port range   |
+| `--timeout`                           | `-t`  | `networkInactivityTimeoutMs`     | int (ms) | `5000`                  | Network inactivity timeout in milliseconds |
+| `--swap-delay`                        | `-d`  | `bufferSwapDelayMs`              | int (ms) | `50`                    | Delay before performing a buffer swap     |
+| `--sql-lite-filename`                 | —     | `sqliteFilename`                 | string | `database.db`           | SQLite database filename                  |
+| `--log-filepath`                      | —     | `logFilepath`                    | string | `log.txt`               | File path for the log output              |
+| *(none)*                              | —     | `frontEndURl`                    | string | `http://localhost:8444` | Frontend application URL                  |
 
 ### Notes
 - All numeric options must be **positive values**.
