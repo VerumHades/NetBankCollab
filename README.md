@@ -7,4 +7,33 @@ Aplikace je implementována v jazyce **C#**, je navržena jako **vícevrstvá (m
 - mssql(nepoviná)
 - sqlLite(nepoviná)
 - .net 10
-- nodeJs 
+- nodeJs
+
+## Instalace 
+1. Klonujte repozitář:
+```bash
+git clone https://github.com/VerumHades/NetBankCollab.git
+cd NetBankCollab
+```
+
+2. Klon repozitáře:
+```bash
+git clone https://github.com/VerumHades/NetBankCollab.git
+cd NetBankCollab
+```
+
+3. Obnovení závislostí
+```bash
+dotnet restore
+cd NetBank.Client
+npm install 
+```
+
+4. Spusťte aplikaci:
+
+```bash
+dotnet run -- project NetBank.App
+```
+configuraci applikace muzete měnit iv cli za pomoci parametru které jsou v [link](https://github.com/VerumHades/NetBankCollab/blob/main/src/NetBank.Application/Configuration/Configuration.cs)
+
+
