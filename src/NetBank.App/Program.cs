@@ -48,7 +48,7 @@ public class Program
             return;
         }
 
-        var storage = new SqliteStorageStrategy(configuration.SqlliteFilename);
+        var storage = new InMemoryStorageStrategy();
         
         var proxy = new SwappableStorageProxy(storage);
         var service = new AccountService(proxy, configuration, loggerFactory);
