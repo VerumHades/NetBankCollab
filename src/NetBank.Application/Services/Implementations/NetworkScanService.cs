@@ -110,6 +110,8 @@ public class NetworkScanService : INetworkScanService
         var startIp = IPAddress.Parse(request.IpRangeStart);
         var endIp = IPAddress.Parse(request.IpRangeEnd);
 
+        var tasks = new List<Task>();
+        
         foreach (var ip in EnumerateIps(startIp, endIp))
         {
             if (ct.IsCancellationRequested)
@@ -119,9 +121,9 @@ public class NetworkScanService : INetworkScanService
                 break;
             }
 
-            await ScanIpAsync(ip, request, ct);
+            tasks.Add(ScanIpAsync(ip, request, ct));
         }
-
+        await Task.WhenAll(tasks);
         isScanning= false;
 
         await BroadcastEventAsync("completed", new
