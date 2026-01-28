@@ -10,6 +10,7 @@ using NetBank.Services;
 using NetBank.Services.Implementations;
 using NetBank.Services.Implementations.DoubleBufferedAccountService;
 using NetBank.Services.NetworkScan;
+using Serilog;
 
 namespace NetBank.App;
 

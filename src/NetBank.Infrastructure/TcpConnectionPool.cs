@@ -78,14 +78,21 @@ public sealed class TcpConnectionPool : IAsyncDisposable
             }
         }
 
-        foreach (var port in Enumerable.Range(_portStart, _portEnd - _portStart + 1))
+        var portRange = Enumerable.Range(_portStart, _portEnd - _portStart + 1);
+        
+        var tasks = portRange.Select(async port => 
         {
             var client = await TryConnect(ip, port);
-            if (client != null)
-            {
-                _cachedPorts[ip] = port;
-                return client;
-            }
+            return new { Port = port, Client = client };
+        }).ToArray();
+
+        var results = await Task.WhenAll(tasks);
+        var successful = results.FirstOrDefault(r => r.Client != null);
+
+        if (successful != null)
+        {
+            _cachedPorts[ip] = successful.Port;
+            return successful.Client;
         }
 
         return null;
