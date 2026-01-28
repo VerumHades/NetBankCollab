@@ -1,10 +1,14 @@
-﻿using NetBank.Errors;
+﻿using System.Text.Json.Serialization;
+using NetBank.Convertion;
+using NetBank.Errors;
 
 namespace NetBank;
 
 public class Account
-{
+{    
+    [JsonConverter(typeof(AccountIdentifierConverter))]
     public AccountIdentifier Identifier { get; private set; }
+    [JsonConverter(typeof(AmountJsonConverter))]
     public Amount Amount { get; private set; }
     
     public Account(AccountIdentifier identifier, Amount amount)

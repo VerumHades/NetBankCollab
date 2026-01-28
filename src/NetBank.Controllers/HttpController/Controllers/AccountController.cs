@@ -19,8 +19,8 @@ public class AccountController : HttpControllerBase
     [HttpPost]
     public async Task<ActionResult<AccountIdentifier>> CreateAccount()
     {
-        var account = await _accountService.CreateAccount();
-        return CreatedAtAction(nameof(GetBalance), new { accountId = account }, account);
+        var accountIdentifier = await _accountService.CreateAccount();
+        return CreatedAtAction(nameof(GetBalance), new Account(accountIdentifier,new Amount(0) ) );
     }
 
     /// <summary>
