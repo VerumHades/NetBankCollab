@@ -1,9 +1,10 @@
 ﻿import {useEffect, useRef, useState} from "react";
-import {Button} from "@/components/ui/button";
+import {toast} from "sonner";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {Badge} from "@/components/ui/badge";
 import {useAxiosClient} from "@/lib/api/axios-client.ts";
+import {IpRangeForm} from "@/components/from/IpRangeForm.tsx";
 
 interface ScanProgress {
     Ip: string;
@@ -12,6 +13,26 @@ interface ScanProgress {
     Response?: string;
 }
 
+interface ScanEvent {
+    Type: "progress" | "completed" | "cancelled";
+    Payload?: any;
+}
+
+interface TcpScanRowProps {
+    ip: string;
+    port: number;
+    status: string;
+    response?: string;
+}
+
+const statusStyles: Record<string, string> = {
+    scanning: "bg-grey-500/10 text-yellow-600 border-grey-500/30",
+    timeout: "bg-yellow-500/10 text-yellow-600 border-yellow-500/30",
+    found: "bg-green-500/10 text-green-600 border-green-500/30",
+    error: "bg-red-500/10 text-red-600 border-red-500/30",
+};
+
+
 export default function TcpScanLive() {
     const [connected, setConnected] = useState(false);
     const [progress, setProgress] = useState<ScanProgress[]>([]);
@@ -19,7 +40,6 @@ export default function TcpScanLive() {
     const wsRef = useRef<WebSocket | null>(null);
 
     const openWebSocket = () => {
-        // Close existing socket if any
         wsRef.current?.close();
 
         const ws = new WebSocket(import.meta.env.VITE_API_BASE_URL_SOCKET);
@@ -29,9 +49,39 @@ export default function TcpScanLive() {
         ws.onclose = () => setConnected(false);
 
         ws.onmessage = (event) => {
-            
-            const data: ScanProgress = JSON.parse(event.data);
-            setProgress(prev => [...prev, data]);
+            const msg: ScanEvent = JSON.parse(event.data);
+
+            switch (msg.Type) {
+                case "progress":
+                    setProgress((prev) => {
+                        const idx = prev.findIndex(
+                            p => p.Ip === msg.Payload.Ip && p.Port === msg.Payload.Port
+                        );
+                        let copy;
+                        if (idx === -1) {
+                            copy = [...prev, msg.Payload];
+                        } else {
+                            copy = [...prev];
+                            copy[idx] = msg.Payload;
+                        }
+                        // Sort so successful scans (Status "Found") are on top
+                        copy.sort((a, b) => {
+                            const aOk = a.Status.toLowerCase() === "found";
+                            const bOk = b.Status.toLowerCase() === "found";
+                            return Number(bOk) - Number(aOk);
+                        });
+                        return copy;
+                    });
+                    break;
+
+                case "completed":
+                    toast.success("Network scan completed");
+                    break;
+
+                case "cancelled":
+                    toast.warning("Network scan cancelled");
+                    break;
+            }
         };
 
         ws.onerror = (err) => {
@@ -40,34 +90,29 @@ export default function TcpScanLive() {
         };
     };
 
-    const startScan = async () => {
+    const startScan = async (body: any) => {
         setProgress([]);
 
-        const body = {
-            IpRangeStart: "192.168.0.1",
-            IpRangeEnd: "192.168.0.10",
-            Port: 80,
-            TimeoutMs: 1000,
-        };
-
+   
         try {
             const res = await axiosClient.post(
                 "/api/tcp-scan/start",
                 body,
                 {headers: {"Content-Type": "application/json"}}
             );
-            console.log( );
+
             if (res.status === 200) {
                 openWebSocket();
-            } else
-                console.error("Failed to start scan", res.status);
+                toast.info("Scan started");
+            } else {
+                toast.error("Failed to start scan");
             }
-        catch (err) {
-            console.error("Failed to start scan", err);
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to start scan");
         }
     };
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
             wsRef.current?.close();
@@ -82,31 +127,50 @@ export default function TcpScanLive() {
                     {connected ? "Connected" : "Disconnected"}
                 </Badge>
             </CardHeader>
-
-            <CardContent className="space-y-4">
-                <Button onClick={startScan}>
-                    Start Scan
-                </Button>
-
-                <ScrollArea className="h-100 rounded-md border p-2">
+          
+            <CardContent className="space-y-4 max-h-">
+                <IpRangeForm onSubmit={startScan} />
+                <ScrollArea className="flex-1 rounded-md border p-3 ">
                     <ul className="space-y-2 text-sm">
                         {progress.map((p, i) => (
-                            <li
-                                key={i}
-                                className="flex flex-col rounded-lg bg-muted p-2"
-                            >
-                                <span className="font-mono">
-                                    {p.Ip}:{p.Port}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                    {p.Status}
-                                    {p.Response && ` | ${p.Response}`}
-                                </span>
-                            </li>
+                            <TcpScanRow
+                                key={`${p.Ip}-${p.Port}-${i}`}
+                                ip={p.Ip}
+                                port={p.Port}
+                                status={p.Status}
+                                response={p.Response}
+                            />
                         ))}
                     </ul>
                 </ScrollArea>
             </CardContent>
         </Card>
+    );
+}
+
+function TcpScanRow({ip, port, status, response}: TcpScanRowProps) {
+    const style =
+        statusStyles[status] ??
+        "bg-muted text-muted-foreground border-border";
+
+    return (
+        <li
+            className={`flex items-center justify-between gap-4 rounded-lg border px-3 py-2 my-1 ${style}`}
+        >
+      <span className="font-mono text-sm">
+        {ip}:{port}
+      </span>
+
+            <div className="flex items-center gap-2">
+        <span className="text-xs uppercase tracking-wide">
+          {status}
+        </span>
+                {response && (
+                    <span className="text-xs text-muted-foreground truncate max-w-[300px]">
+            {response}
+          </span>
+                )}
+            </div>
+        </li>
     );
 }
