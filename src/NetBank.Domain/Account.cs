@@ -1,10 +1,13 @@
-﻿using NetBank.Errors;
+﻿using System.Text.Json.Serialization;
+using NetBank.Errors;
 
 namespace NetBank;
 
 public class Account
 {
+    [JsonPropertyName("identifier")]  
     public AccountIdentifier Identifier { get; private set; }
+    [JsonPropertyName("amount")]
     public Amount Amount { get; private set; }
     
     public Account(AccountIdentifier identifier, Amount amount)

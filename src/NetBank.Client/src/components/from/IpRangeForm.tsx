@@ -1,13 +1,13 @@
-﻿import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "../ui/input";
+﻿import {useState} from "react";
+import {Button} from "@/components/ui/button";
+import {Input} from "../ui/input";
 import {Label} from "@/components/ui/label.tsx";
 
 interface IpRangeFormProps {
     onSubmit?: (body: { IpRangeStart: string; IpRangeEnd: string; Port: number; TimeoutMs: number }) => void;
 }
 
-export function IpRangeForm({ onSubmit }: IpRangeFormProps) {
+export function IpRangeForm({onSubmit}: IpRangeFormProps) {
     const [startIp, setStartIp] = useState("");
     const [endIp, setEndIp] = useState("");
     const [port, setPort] = useState(80);
@@ -88,8 +88,9 @@ export function IpRangeForm({ onSubmit }: IpRangeFormProps) {
                 />
                 {errors.timeout && <p className="text-red-500 text-sm">{errors.timeout}</p>}
             </div>
-
-            <Button onClick={handleSubmit}>Submit</Button>
+            <div className="pt-5">
+                <Button  onClick={handleSubmit}>Submit</Button>
+            </div>
         </div>
     );
 }

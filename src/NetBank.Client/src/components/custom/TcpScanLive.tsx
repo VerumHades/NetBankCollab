@@ -120,7 +120,7 @@ export default function TcpScanLive() {
     }, []);
 
     return (
-        <Card className="shadow-md">
+        <Card className="shadow-md w-full">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-xl">TCP Scan – Live Progress</CardTitle>
                 <Badge variant={connected ? "default" : "destructive"}>
