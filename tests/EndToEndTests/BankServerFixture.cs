@@ -19,8 +19,13 @@ public class BankServerFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         Port = 5000;
-        TargetPort = 5010;
+        TargetPort = 5000;
         
+        //await RunServers()
+    }
+
+    public async Task RunServers()
+    {
         _serverTask = Program.RunServerAsync(
             new[] { "--ip", Address, "--port", Port.ToString(), "--sql-lite-filename", "testdb_1.db" }, 
             _cts.Token);
