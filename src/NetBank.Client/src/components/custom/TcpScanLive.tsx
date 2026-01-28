@@ -29,6 +29,7 @@ export default function TcpScanLive() {
         ws.onclose = () => setConnected(false);
 
         ws.onmessage = (event) => {
+            
             const data: ScanProgress = JSON.parse(event.data);
             setProgress(prev => [...prev, data]);
         };
@@ -53,16 +54,15 @@ export default function TcpScanLive() {
             const res = await axiosClient.post(
                 "/api/tcp-scan/start",
                 body,
-                { headers: { "Content-Type": "application/json" } }
+                {headers: {"Content-Type": "application/json"}}
             );
-
-            console.log(res)
-            if (res.status === 202) {
-                openWebSocket(); // 👈 ONLY open socket after Accepted
-            } else {
-                console.error("Unexpected response status:", res.status);
+            console.log( );
+            if (res.status === 200) {
+                openWebSocket();
+            } else
+                console.error("Failed to start scan", res.status);
             }
-        } catch (err) {
+        catch (err) {
             console.error("Failed to start scan", err);
         }
     };

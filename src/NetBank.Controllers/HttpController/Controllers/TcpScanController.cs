@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NetBank.NetworkScan;
 using NetBank.Services;
+using NetBank.Services.Implementations;
 using NetBank.Services.NetworkScan;
 
 namespace NetBank.Controllers.HttpController.controllers;
@@ -9,10 +10,10 @@ namespace NetBank.Controllers.HttpController.controllers;
 [Route("api/tcp-scan")]
 public class TcpScanController: HttpControllerBase
 {
-    private readonly INetworkScanService _scanService;
+    private readonly NetworkScanService _scanService;
     
 
-    public TcpScanController(INetworkScanService scanService)
+    public TcpScanController(NetworkScanService scanService)
     {
         _scanService = scanService;
     }

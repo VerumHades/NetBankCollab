@@ -2,7 +2,10 @@
 <project version="4">
   <component name="UserContentModel">
     <attachedFolders>
-      <Path>src/NetBank.Client</Path>
+      <Path>.idea</Path>
+      <Path>docs</Path>
+      <Path>src/Netbank.Client</Path>
+      <Path>src/client</Path>
     </attachedFolders>
     <explicitIncludes />
     <explicitExcludes />

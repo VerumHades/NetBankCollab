@@ -13,15 +13,14 @@ namespace NetBank.Services.Implementations;
 public class NetworkScanService : INetworkScanService
 {
     private static readonly byte[] ProbeMessage = Encoding.ASCII.GetBytes("BC ");
-    private readonly HttpClient _http;
     private readonly IScanProgressStore _store;
     private readonly ILogger<NetworkScanService> _logger;
     private readonly List<WebSocket> _clients = new();
+    private bool isScanning = false;
 
-    public NetworkScanService(HttpClient httpClient,IScanProgressStore store,ILogger<NetworkScanService> logger)
+    public NetworkScanService(IScanProgressStore store,ILogger<NetworkScanService> logger)
     {
         _store = store;
-        _http= httpClient;
         _logger = logger;
 
     }
@@ -35,7 +34,7 @@ public class NetworkScanService : INetworkScanService
     }
 
     // Remove disconnected sockets
-    private void RemoveWebSocketClient(WebSocket socket)
+    public void RemoveWebSocketClient(WebSocket socket)
     {
         lock (_clients)
         {
@@ -43,10 +42,10 @@ public class NetworkScanService : INetworkScanService
         }
     }
 
-    // Broadcast progress to all WebSocket clients
-    private async Task BroadcastProgressAsync(ScanProgress progress)
+  private async Task BroadcastEventAsync(string type, object? payload = null)
     {
-        var json = JsonSerializer.Serialize(progress);
+        var evt = new ScanEvent(type, payload);
+        var json = JsonSerializer.Serialize(evt);
         var buffer = Encoding.UTF8.GetBytes(json);
         var segment = new ArraySegment<byte>(buffer);
 
@@ -60,7 +59,12 @@ public class NetworkScanService : INetworkScanService
                 {
                     try
                     {
-                        socket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None).Wait();
+                        socket.SendAsync(
+                            segment,
+                            WebSocketMessageType.Text,
+                            true,
+                            CancellationToken.None
+                        ).Wait();
                     }
                     catch
                     {
@@ -80,21 +84,29 @@ public class NetworkScanService : INetworkScanService
 
     private async Task UpdateProgress(ScanProgress progress)
     {
-        // Save progress to store
         _store.Add(progress);
-        _logger.LogInformation("{Ip}:{Port} = {Status}", progress.Ip, progress.Port, progress.Status);
+        _logger.LogInformation("{Ip}:{Port} = {Status}",
+            progress.Ip, progress.Port, progress.Status);
 
-        // Broadcast to WebSocket clients
-        await BroadcastProgressAsync(progress);
+        await BroadcastEventAsync("progress", progress);
     }
 
     public async Task StartScanAsync(ScanRequest request, CancellationToken ct = default)
     {
-        _logger.LogInformation("Starting network scan from {StartIp} to {EndIp} on port {Port}", 
-            request.IpRangeStart, request.IpRangeEnd, request.Port);
+        if (isScanning)
+            return;
 
-        _store.Clear(); // clear previous scan results
-        
+        isScanning = true;
+
+        _logger.LogInformation(
+            "Starting network scan from {StartIp} to {EndIp} on port {Port}",
+            request.IpRangeStart,
+            request.IpRangeEnd,
+            request.Port
+        );
+
+        _store.Clear();
+
         var startIp = IPAddress.Parse(request.IpRangeStart);
         var endIp = IPAddress.Parse(request.IpRangeEnd);
 
@@ -102,19 +114,26 @@ public class NetworkScanService : INetworkScanService
         {
             if (ct.IsCancellationRequested)
             {
-                _logger.LogInformation("Scan cancelled by user.");
+                await BroadcastEventAsync("cancelled");
+                _logger.LogInformation("Scan cancelled.");
                 break;
             }
 
             await ScanIpAsync(ip, request, ct);
         }
 
+        isScanning = false;
+
+        await BroadcastEventAsync("completed", new
+        {
+            finishedAt = DateTime.UtcNow
+        });
+
         _logger.LogInformation("Network scan completed.");
     }
 
     private async Task ScanIpAsync(IPAddress ip, ScanRequest request, CancellationToken ct)
     {
-        // Update status to scanning immediately
         var progress = new ScanProgress(ip.ToString(), request.Port, "scanning", null);
         await UpdateProgress(progress);
 
@@ -149,8 +168,6 @@ public class NetworkScanService : INetworkScanService
             await UpdateProgress(progress with { Status = "error", Response = ex.Message });
         }
     }
-
-
 
     private static IEnumerable<IPAddress> EnumerateIps(IPAddress start, IPAddress end)
     {
