@@ -47,7 +47,7 @@ public class BankRobberyService
         if (!banks.Any())
         {
             _logger.LogWarning("No banks available for robbery planning");
-            return "RP No banks available.";
+            return "No banks available.";
         }
         var plan = Plan(banks, targetAmount);
 
