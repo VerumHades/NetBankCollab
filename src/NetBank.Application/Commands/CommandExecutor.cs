@@ -43,6 +43,8 @@ public class CommandExecutor(IAccountService service, ICommandParser parser, ICo
 
                 BankClientsDto =>
                     $"BN {await service.BankNumberOfClients()}",
+                RobberyPlanDto r => 
+                    throw new NotImplementedException("Rp Not implemetnetd"),
 
                 _ => throw new ArgumentException($"Unsupported DTO type: {dto.GetType().Name}")
             };
