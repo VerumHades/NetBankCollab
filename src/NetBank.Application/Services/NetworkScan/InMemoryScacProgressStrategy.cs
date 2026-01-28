@@ -9,7 +9,6 @@ public class InMemoryScanProgressStrategy : IScanProgressStore
 
     public void Add(ScanProgress update)
     {
-        // Key = IP + port (last update wins)
         var key = $"{update.Ip}:{update.Port}";
         _updates[key] = update;
     }

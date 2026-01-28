@@ -6,7 +6,7 @@ public class AccountService: IAccountService, IDisposable
 {
     private readonly DoubleBufferedAccountCoordinator _coordinator;
     private readonly ILogger<AccountService>? _logger;
-    private readonly ActivityDrivenTimer _swapTimer;
+    private readonly HeartbeatSwapTimer _swapTimer;
     private Action OnActivity { get; }
 
     
@@ -16,7 +16,7 @@ public class AccountService: IAccountService, IDisposable
         var processor = new CapturedAccountActionsProcessor(storageStrategy);
         _coordinator = new DoubleBufferedAccountCoordinator(processor);
         
-        _swapTimer = new ActivityDrivenTimer(
+        _swapTimer = new HeartbeatSwapTimer(
             () =>
             {
                 try
@@ -30,12 +30,13 @@ public class AccountService: IAccountService, IDisposable
                 }
             }, 
             configuration.BufferSwapDelay,
-            loggerFactory?.CreateLogger<ActivityDrivenTimer>()
+            loggerFactory?.CreateLogger<HeartbeatSwapTimer>()
         );
+        _swapTimer.Start();
         
         OnActivity = () =>
         {
-            _swapTimer.WakeUp();
+            //_swapTimer.WakeUp();
         };
     }
 

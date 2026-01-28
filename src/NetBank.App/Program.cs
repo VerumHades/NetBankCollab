@@ -10,6 +10,7 @@ using NetBank.Services;
 using NetBank.Services.Implementations;
 using NetBank.Services.Implementations.DoubleBufferedAccountService;
 using NetBank.Services.NetworkScan;
+using Serilog;
 
 namespace NetBank.App;
 
@@ -17,26 +18,48 @@ public class Program
 {
     static async Task Main(string[] args)
     {
-        SQLitePCL.Batteries.Init();
-    
-        using var loggerFactory = LoggerFactory.Create(builder => {
-            builder.AddConsole().SetMinimumLevel(LogLevel.Debug);
-        });
-
         try
         {
-            await RunServerAsync(args, loggerFactory);
+            SQLitePCL.Batteries.Init();
         }
         catch (Exception ex)
         {
-            loggerFactory.CreateLogger<Program>().LogCritical(ex, "Unexpected exception.");
+            Console.WriteLine($"Failed to initialize sql lite libraries: {ex}");
+        }
+        
+        try
+        {
+            await RunServerAsync(args);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected exception: {ex}");
         }
     }
-
-    public static async Task RunServerAsync(string[] args, ILoggerFactory loggerFactory, CancellationToken? cancellationToken = null)
-    {
-        cancellationToken ??= CancellationToken.None;
     
+    private static string GetValidLogPath(string preferredPath)
+    {
+        try
+        {
+            var directory = Path.GetDirectoryName(Path.GetFullPath(preferredPath));
+            if (string.IsNullOrEmpty(directory)) throw new Exception("Invalid log path");
+            
+            Directory.CreateDirectory(directory);
+
+            string testFile = Path.Combine(directory, $".write-test-{Guid.NewGuid()}");
+            File.WriteAllText(testFile, "test");
+            File.Delete(testFile);
+
+            return preferredPath;
+        }
+        catch
+        {
+            return Path.Combine(Path.GetTempPath(), "NetBank", "log-.txt");
+        }
+    }
+    
+    public static async Task RunServerAsync(string[] args, CancellationToken? cancellationToken = null)
+    {
         Configuration.Configuration? configuration = null;
         try
         {
@@ -44,20 +67,47 @@ public class Program
         }
         catch (Exception ex)
         {
-            loggerFactory.CreateLogger<Program>().LogCritical(ex, "Failed to load configuration.");
+            Console.WriteLine($"Failed to load configuration: {ex}" );
+            return;
+        }
+        
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.File(GetValidLogPath(configuration.LogFilename), 
+                rollingInterval: RollingInterval.Day,
+                fileSizeLimitBytes: 10 * 1024 * 1024,  
+                rollOnFileSizeLimit: true,           
+                retainedFileCountLimit: 5)              
+            .CreateLogger();
+        
+        using var loggerFactory = LoggerFactory.Create(builder => {
+            builder.AddConsole().AddSerilog().SetMinimumLevel(LogLevel.Debug);
+        });
+        
+        cancellationToken ??= CancellationToken.None;
+        var programLogger = loggerFactory.CreateLogger<Program>();
+        
+        if (configuration.DelegationTargetPortRangeStart >= configuration.DelegationTargetPortRangeEnd)
+        {
+            programLogger.LogCritical("Delegation port range conform to: start < end.");
             return;
         }
 
-        var storage = new SqliteStorageStrategy(configuration.SqlliteFilename);
+        IStorageStrategy? storage = null;
+        try
+        {
+            storage = new SqliteStorageStrategy(configuration.SqlliteFilename);
+        }
+        catch (Exception ex)
+        {
+            programLogger.LogError(ex, "Failed to load sql lite storage.");
+            programLogger.LogWarning("Falling back to in memory storage strategy.");
+
+            storage = new InMemoryStorageStrategy();
+        }
         
         var proxy = new SwappableStorageProxy(storage);
         var service = new AccountService(proxy, configuration, loggerFactory);
-
-        if (configuration.DelegationTargetPortRangeStart >= configuration.DelegationTargetPortRangeEnd)
-        {
-            loggerFactory.CreateLogger<Program>().LogCritical("Delegation port range conform to: start < end.");
-            return;
-        }
 
         var commandParser = new TemplateCommandParser();
         var commandDelegator = new TcpCommandDelegator(
@@ -66,6 +116,7 @@ public class Program
             configuration.DelegationTargetPortRangeEnd, 
             configuration.DelegationTargetPort, 
             loggerFactory.CreateLogger<TcpCommandDelegator>());
+        
         var commandExecutor = new CommandExecutor(service, commandParser, commandDelegator, configuration);
 
         var server = new TcpCommandServer(
@@ -84,7 +135,6 @@ public class Program
             { typeof(SwappableStorageProxy), proxy },
             { typeof(NetworkScanService), networkScanner }
         };
-
         
         var httpServer = new HttpServerHost(
             configuration,

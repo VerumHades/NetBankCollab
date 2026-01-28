@@ -7,7 +7,8 @@ namespace NetBank.Configuration
         None,
         MustBePositive,
         NonEmptyString,
-        MustBeIpAddress // New validation type
+        MustBeIpAddress, 
+        MustBeValidPath
     }
 
     [AttributeUsage(AttributeTargets.Property)]
@@ -56,6 +57,20 @@ namespace NetBank.Configuration
                     if (!IPAddress.TryParse(ipString, out _))
                     {
                         throw new ArgumentException($"Option '{Name}' contains an invalid IP address format: '{ipString}'.");
+                    }
+                    break;
+                case ValidationType.MustBeValidPath:
+                    if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
+                        throw new ArgumentException($"Option '{Name}' requires a valid file path.");
+
+                    string pathString = value.ToString()!;
+                    try
+                    {
+                        Path.GetFullPath(pathString);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ArgumentException($"Option '{Name}' is not a valid path: {ex.Message}");
                     }
                     break;
 

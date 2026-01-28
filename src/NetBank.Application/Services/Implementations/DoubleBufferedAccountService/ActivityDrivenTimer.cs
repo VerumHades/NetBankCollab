@@ -21,45 +21,48 @@ public class ActivityDrivenTimer : IDisposable
         _interval = interval;
         _logger = logger;
     }
-
+    
+    private Task? _pulseTask;
     /// <summary>
     /// Wakes the timer. If already pulsing, does nothing.
     /// </summary>
+
     public void WakeUp()
     {
         lock (_lock)
         {
-            if (_isDisposed || _cts != null) return;
-
-            _cts = new CancellationTokenSource();
-            _ = PulseLoop(_cts.Token);
-            _logger?.LogDebug("Swap timer woke up.");
+            if (_isDisposed) return;
+        
+            if (_pulseTask == null || _pulseTask.IsCompleted)
+            {
+                _cts = new CancellationTokenSource();
+                _pulseTask = PulseLoop(_cts.Token); // Assign the task
+                _logger?.LogDebug("Swap timer woke up.");
+            }
         }
     }
 
     private async Task PulseLoop(CancellationToken token)
     {
-        try
+        while (!token.IsCancellationRequested)
         {
-            bool keepPulsing = true;
-
-            while (keepPulsing && !token.IsCancellationRequested)
+            try
             {
                 await Task.Delay(_interval, token);
-                
-                keepPulsing = !await _swapCallback();
+
+                bool swapped = await _swapCallback();
+                if (swapped) return;
             }
-        }
-        catch (OperationCanceledException) { }
-        finally
-        {
-            lock (_lock)
+            catch (OperationCanceledException)
             {
-                _cts?.Dispose();
-                _cts = null;
+                break;
             }
-            
-            _logger?.LogDebug("Swap went to sleep.");
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "PulseLoop encountered an error.");
+                //return;
+                await Task.Delay(TimeSpan.FromSeconds(5), token);
+            }
         }
     }
 

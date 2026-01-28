@@ -80,7 +80,6 @@ public sealed class TcpConnectionPool : IAsyncDisposable
 
         foreach (var port in Enumerable.Range(_portStart, _portEnd - _portStart + 1))
         {
-            Console.WriteLine(port);
             var client = await TryConnect(ip, port);
             if (client != null)
             {

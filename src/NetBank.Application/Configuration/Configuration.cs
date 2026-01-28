@@ -30,11 +30,15 @@ public class Configuration
 
     [JsonPropertyName("bufferSwapDelayMs")]
     [CliOption("--swap-delay", "-d", "Delay before performing a buffer swap in milliseconds", ValidationType.MustBePositive)]
-    public int BufferSwapDelayMs { get; set; } = 100;
+    public int BufferSwapDelayMs { get; set; } = 50;
     
     [JsonPropertyName("sqliteFilename")]
-    [CliOption("--sql-lite-filename", description: "Name of the sql lite database", validation: ValidationType.NonEmptyString)]
+    [CliOption("--sql-lite-filename", description: "Filename of the sql lite database", validation: ValidationType.NonEmptyString)]
     public string SqlliteFilename { get; set; } = "database.db";
+    
+    [JsonPropertyName("logFilepath")]
+    [CliOption("--log-filepath", description: "Filepath of the log.", validation: ValidationType.MustBeValidPath)]
+    public string LogFilename { get; set; } = "log.txt";
     
     [JsonPropertyName("frontEndURl")]
     public string FrontEndURl { get; set; } = "http://localhost:8444";

@@ -21,16 +21,16 @@ public class BankServerFixture : IAsyncLifetime
         Port = 5000;
         TargetPort = 5009;
         
-        //_serverTask = Program.RunServerAsync(
-        //    new[] { "--ip", Address, "--port", Port.ToString(), "--sql-lite-filename", "testdb_1.db" }, 
-        //    _cts.Token);
+        _serverTask = Program.RunServerAsync(
+            new[] { "--ip", Address, "--port", Port.ToString(), "--sql-lite-filename", "testdb_1.db" }, 
+            _cts.Token);
         
-        //_serverTask2 = Program.RunServerAsync(
-        //    new[] { "--ip", TargetAddress, "--port", $"{5000}", "--sql-lite-filename", "testdb_2.db" }, 
-        //    _cts.Token);
+        _serverTask2 = Program.RunServerAsync(
+            new[] { "--ip", TargetAddress, "--port", TargetPort.ToString(), "--sql-lite-filename", "testdb_2.db" }, 
+            _cts.Token);
 
 
-        await Task.Delay(500); 
+        await Task.Delay(2000); 
     }
 
     public async Task DisposeAsync()
