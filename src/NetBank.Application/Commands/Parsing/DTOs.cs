@@ -11,6 +11,15 @@ public record CreateAccountDto();
 public record BankTotalDto();
 public record BankClientsDto();
 
+public record RobberyPlanDto{
+    public int Amount { get; set; } = -1;
+    public RobberyPlanDto() { }
+    public RobberyPlanDto(int amount)
+    {
+        Amount = amount;
+    }
+};
+
 public record DepositDto: WithIpDto
 {
     public int Account { get; set; } = -1;

@@ -13,14 +13,14 @@ namespace NetBank.Services.Implementations;
 public class NetworkScanService : INetworkScanService
 {
     private static readonly byte[] ProbeMessage = Encoding.ASCII.GetBytes("BC ");
-    private readonly IScanProgressStore _store;
+    public IScanProgressStore Store;
     private readonly ILogger<NetworkScanService> _logger;
     private readonly List<WebSocket> _clients = new();
-    private bool isScanning = false;
+    public bool isScanning = false;
 
     public NetworkScanService(IScanProgressStore store,ILogger<NetworkScanService> logger)
     {
-        _store = store;
+        Store = store;
         _logger = logger;
 
     }
@@ -84,7 +84,7 @@ public class NetworkScanService : INetworkScanService
 
     private async Task UpdateProgress(ScanProgress progress)
     {
-        _store.Add(progress);
+        Store.Add(progress);
         _logger.LogInformation("{Ip}:{Port} = {Status}",
             progress.Ip, progress.Port, progress.Status);
 
@@ -105,7 +105,7 @@ public class NetworkScanService : INetworkScanService
             request.Port
         );
 
-        _store.Clear();
+        Store.Clear();
 
         var startIp = IPAddress.Parse(request.IpRangeStart);
         var endIp = IPAddress.Parse(request.IpRangeEnd);
@@ -122,7 +122,7 @@ public class NetworkScanService : INetworkScanService
             await ScanIpAsync(ip, request, ct);
         }
 
-        isScanning = false;
+        isScanning= false;
 
         await BroadcastEventAsync("completed", new
         {

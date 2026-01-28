@@ -26,7 +26,7 @@ public class Configuration
 
     [JsonPropertyName("networkInactivityTimeoutMs")]
     [CliOption("--timeout", "-t", "Network inactivity timeout in milliseconds", ValidationType.MustBePositive)]
-    public int NetworkInactivityTimeoutMs { get; set; } = 5000;
+    public int NetworkInactivityTimeoutMs { get; set; } = 10000;
 
     [JsonPropertyName("bufferSwapDelayMs")]
     [CliOption("--swap-delay", "-d", "Delay before performing a buffer swap in milliseconds", ValidationType.MustBePositive)]

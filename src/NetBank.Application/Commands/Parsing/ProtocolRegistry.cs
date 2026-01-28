@@ -11,6 +11,7 @@ public static class ProtocolRegistry
         { "AB", new Template<BalanceDto>("AB {Account}/{Ip}") },
         { "AR", new Template<RemoveAccountDto>("AR {Account}/{Ip}") },
         { "BA", new Template<BankTotalDto>("BA") },
-        { "BN", new Template<BankClientsDto>("BN") }
+        { "BN", new Template<BankClientsDto>("BN") },
+        { "RP", new Template<RobberyPlanDto>("RP {Amount}") }
     };
 }
