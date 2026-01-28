@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetBank.Configuration;
 
@@ -37,7 +37,7 @@ public class Configuration
     public string SqlliteFilename { get; set; } = "database.db";
     
     [JsonPropertyName("frontEndURl")]
-    public string FrontEndURl { get; set; } = "https://localhost:8444";
+    public string FrontEndURl { get; set; } = "http://localhost:8444";
     
     [JsonIgnore]
     public TimeSpan InactivityTimeout => TimeSpan.FromMilliseconds(NetworkInactivityTimeoutMs);
