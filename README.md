@@ -32,8 +32,11 @@ npm install
 4. Spusťte aplikaci:
 
 ```bash
-dotnet run -- project NetBank.App
+dotnet run --project NetBank.App
 ```
-configuraci applikace muzete měnit iv cli za pomoci parametru které jsou v [link](https://github.com/VerumHades/NetBankCollab/blob/main/src/NetBank.Application/Configuration/Configuration.cs)
+ Konfiguraci aplikace je možné měnit i z příkazové řádky (CLI) pomocí parametrů, které jsou definované v souboru [link](https://github.com/VerumHades/NetBankCollab/blob/main/src/NetBank.Application/Configuration/Configuration.cs)
+
+Applikace tak spusti dokumentaci OpenAPI na [link](http://localhost:8444/swagger)
+
 
 
