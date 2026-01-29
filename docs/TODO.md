@@ -1,4 +1,4 @@
-﻿# The projects root TODO list
+# The projects root TODO list
 
 Each collaborator is expected to signal taking on tasks by adding their names in printeses before it.
 
@@ -8,6 +8,5 @@ Each collaborator is expected to signal taking on tasks by adding their names in
 - [x] (Filip Heger) Make sqllite database
 - [x] (Michal Prihoda) Make Https controllers
 - [X] (Michal Prihoda) Make Network scanning service
-- [ ] (Michal Prihod) UI
-- [ ] (Michal Prihod) Database (Mssql)
+- [x] (Michal Prihod) UI
 - [ ] Make README
