@@ -6,23 +6,23 @@ public class Configuration
 {
     [JsonPropertyName("serverIp")]
     [CliOption("--ip", "-i", "IP address for the orchestrator server", ValidationType.MustBeIpAddress)]
-    public string ServerIp { get; set; } = "127.0.0.1";
+    public string ServerIp { get; set; } = "10.2.7.141";
 
     [JsonPropertyName("serverPort")]
     [CliOption("--port", "-p", "Port for the TCP orchestrator server", ValidationType.MustBePositive)]
-    public int ServerPort { get; set; } = 5000;
+    public int ServerPort { get; set; } = 65525;
     
     [JsonPropertyName("delegationTargetPort")]
     [CliOption("--delegation-target-port", description: "Target port for the TCP command delegator", validation: ValidationType.MustBePositive)]
-    public int DelegationTargetPort { get; set; } = 5001;
+    public int DelegationTargetPort { get; set; } = 65525;
     
     [JsonPropertyName("delegationTargetPort")]
     [CliOption("--delegation-target-port-range-start", description: "Target port for the TCP command delegator", validation:ValidationType.MustBePositive)]
-    public int DelegationTargetPortRangeStart { get; set; } = 5000;
+    public int DelegationTargetPortRangeStart { get; set; } = 65525;
     
     [JsonPropertyName("delegationTargetPort")]
     [CliOption("--delegation-target-port-range-end", description: "Target port for the TCP command delegator", validation:ValidationType.MustBePositive)]
-    public int DelegationTargetPortRangeEnd { get; set; } = 5010;
+    public int DelegationTargetPortRangeEnd { get; set; } = 65535;
 
     [JsonPropertyName("networkInactivityTimeoutMs")]
     [CliOption("--timeout", "-t", "Network inactivity timeout in milliseconds", ValidationType.MustBePositive)]

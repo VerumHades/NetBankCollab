@@ -2,6 +2,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
 import TcpScanLive from "@/components/custom/TcpScanLive.tsx";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
+import {AccountPanel} from "@/components/pages/Accounts.tsx";
 
 export default function Dashboard() {
     return (
@@ -20,6 +21,10 @@ export default function Dashboard() {
                 <main className="col-span-5 p-6 w-full">
                     <TabsContent value="tcp" className={"w-full"} forceMount>
                         <TcpScanLive/>
+                        <AccountPanel/>
+                    </TabsContent>
+                    <TabsContent value="account" className={"w-full"} forceMount>
+                  
                     </TabsContent>
                 </main>
             </div>

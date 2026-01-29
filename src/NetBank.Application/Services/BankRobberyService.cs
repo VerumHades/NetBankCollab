@@ -25,7 +25,7 @@ public class BankRobberyService
         _logger.LogInformation("Loading bank data ");
         foreach (var scan in _networkScanService.Store.GetAll())
         {
-            if (scan .Response != "found")
+            if (scan.Status != "found")
             {
                continue;
             }
@@ -92,7 +92,7 @@ public class BankRobberyService
         );
 
         return
-            $"RP K dosažení {target} je třeba vyloupit banky {bankList}. " +
+            $"K dosažení {target} je třeba vyloupit banky {bankList}. " +
             $"Získáno {plan.TotalMoney} RP a poškozeno bude pouze {plan.TotalClients} klientů.";
     }
 

@@ -142,6 +142,7 @@ public class NetworkScanService : INetworkScanService
         try
         {
             using var client = new TcpClient();
+
             var connectTask = client.ConnectAsync(ip, request.Port);
 
             if (await Task.WhenAny(connectTask, Task.Delay(request.TimeoutMs, ct)) != connectTask)
@@ -189,4 +190,5 @@ public class NetworkScanService : INetworkScanService
             yield return new IPAddress(bytes);
         }
     }
+    
 }
