@@ -1,4 +1,4 @@
-﻿import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
 import TcpScanLive from "@/components/custom/TcpScanLive.tsx";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
@@ -12,13 +12,13 @@ export default function Dashboard() {
                     <h2 className="text-xl font-bold">Netbank dashboard</h2>
                     <TabsList>
                         <TabsTrigger value="tcp">TcpScan</TabsTrigger>
-                        <TabsTrigger value="password">Accounts</TabsTrigger>
+                        <TabsTrigger value="accounts">Accounts</TabsTrigger>
                         <TabsTrigger value="notifications">Notifications</TabsTrigger>
                     </TabsList>
                 </aside>
                 {/* Main */}
                 <main className="col-span-5 p-6 w-full">
-                    <TabsContent value="tcp" className={"w-full"}>
+                    <TabsContent value="tcp" className={"w-full"} forceMount>
                         <TcpScanLive/>
                     </TabsContent>
                 </main>
